@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: light;
+
+  --color-canvas: #f6f0e8;
+  --color-surface: #fffcf7;
+  --color-surface-raised: #ffffff;
+  --color-border: #e5d9cc;
+  --color-border-strong: #c9b8a6;
+  --color-ink: #2a241d;
+  --color-ink-muted: #5c5349;
+  --color-ink-faint: #8a8177;
+  --color-brand: #b8613a;
+  --color-brand-hover: #9e4f2e;
+  --color-accent: #c6a04e;
+  --color-accent-muted: #a6853f;
+  --color-inlay-dark: #4a3f35;
+  --color-inlay-mid: #6b5b4d;
+  --color-success: #3d6b4a;
+  --color-warning: #c2873a;
+  --color-danger: #b23b3b;
+  --color-focus: #1f6feb;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+
+  --shadow-soft:
+    0 1px 2px rgb(42 36 29 / 0.06),
+    0 8px 24px rgb(42 36 29 / 0.06);
+}
+
+@theme inline {
+  --color-background: var(--color-canvas);
+  --color-foreground: var(--color-ink);
+  --font-sans: var(--font-sans-hebrew), var(--font-sans-latin), "Segoe UI Hebrew",
+    "Noto Sans Hebrew", system-ui, sans-serif;
+  --font-mono: var(--font-mono), ui-monospace, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-brand) 35%, white);
+  color: var(--color-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
