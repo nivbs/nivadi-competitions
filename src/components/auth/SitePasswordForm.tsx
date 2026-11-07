@@ -1,7 +1,6 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useActionState } from "react";
 
 import {
   verifySitePasswordAction,
@@ -11,18 +10,10 @@ import {
 const initialState: PasswordGateState | undefined = undefined;
 
 export function SitePasswordForm() {
-  const router = useRouter();
   const [state, formAction, pending] = useActionState(
     verifySitePasswordAction,
     initialState,
   );
-
-  useEffect(() => {
-    if (state?.ok) {
-      router.replace("/sign-in?step=player");
-      router.refresh();
-    }
-  }, [state, router]);
 
   return (
     <form action={formAction} className="space-y-4">

@@ -1,22 +1,17 @@
 import type { ReactNode } from "react";
-import { redirect } from "next/navigation";
+import { Suspense } from "react";
 
 import { SheshBeshIntroLoader } from "@/components/intro/SheshBeshIntroLoader";
-import { AppShell } from "@/components/shell/AppShell";
-import { getPlayerSlugFromSession } from "@/lib/session/player";
+import { AuthenticatedShell } from "@/components/shell/AuthenticatedShell";
+import AppLoading from "@/app/(app)/loading";
 
-export const instant = false;
-
-export default async function AppGroupLayout({ children }: { children: ReactNode }) {
-  const playerSlug = await getPlayerSlugFromSession();
-  if (!playerSlug) {
-    redirect("/sign-in?step=player");
-  }
-
+export default function AppGroupLayout({ children }: { children: ReactNode }) {
   return (
     <>
       <SheshBeshIntroLoader />
-      <AppShell playerSlug={playerSlug}>{children}</AppShell>
+      <Suspense fallback={<AppLoading />}>
+        <AuthenticatedShell>{children}</AuthenticatedShell>
+      </Suspense>
     </>
   );
 }

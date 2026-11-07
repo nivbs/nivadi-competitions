@@ -1,38 +1,18 @@
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
-import { connection } from "next/server";
 
-import { getActiveCompetition, getPlayersBySlug, listMatchesForCompetition } from "@/lib/queries";
+import { DatabaseSetupNotice } from "@/components/shell/DatabaseSetupNotice";
 import { formatClock } from "@/lib/analysis";
+import { loadCompetitionContext } from "@/lib/competition-context/load";
+import { listMatchesForCompetition } from "@/lib/queries";
 
 export default async function HistoryPage() {
-  await connection();
-
-  if (!process.env.DATABASE_URL) {
-    return (
-      <div className="mx-auto max-w-3xl px-4 py-6">
-        <p className="text-[var(--color-ink-muted)]">
-          חסר DATABASE_URL. העתיקו מ־‎.env.example ל־‎.env.local והתחברו ל-Neon.
-        </p>
-      </div>
-    );
+  const ctx = await loadCompetitionContext();
+  if (!ctx.ready) {
+    return <DatabaseSetupNotice reason={ctx.reason} />;
   }
 
-  const competition = await getActiveCompetition();
-  const playersBySlug = await getPlayersBySlug();
-  const niv = playersBySlug.niv;
-  const gilad = playersBySlug.gilad;
-
-  if (!competition || !niv || !gilad) {
-    return (
-      <div className="mx-auto max-w-3xl px-4 py-6">
-        <p className="text-[var(--color-ink-muted)]">
-          חסרות תחרות פעילה או שחקנים אותחלו. הריצו מיגרציה ו-seed לפי README.
-        </p>
-      </div>
-    );
-  }
-
+  const { competition, niv, gilad } = ctx;
   const rows = await listMatchesForCompetition(competition.id);
 
   return (

@@ -4,9 +4,10 @@ import { revalidatePath } from "next/cache";
 
 import { getDb } from "@/db";
 import { matches } from "@/db/schema";
+import { loadCompetitionContext } from "@/lib/competition-context/load";
+import { isDatabaseSetupError } from "@/lib/db-errors";
 import { getPlayerSlugFromSession } from "@/lib/session/player";
 import { matchFormSchema } from "@/lib/match-validation";
-import { getActiveCompetition, getPlayersBySlug } from "@/lib/queries";
 
 export type SaveMatchState =
   | { ok: true; message: string }
@@ -50,20 +51,31 @@ export async function saveMatch(
     return { ok: false, message: "תאריך לא תקין." };
   }
 
-  const competition = await getActiveCompetition();
-  if (!competition) {
-    return { ok: false, message: "אין תחרות פעילה במסד הנתונים." };
+  let ctx;
+  try {
+    ctx = await loadCompetitionContext();
+  } catch (error) {
+    if (isDatabaseSetupError(error)) {
+      return {
+        ok: false,
+        message:
+          "מסד הנתונים עדיין לא מוכן. הריצו db:push ו-db:seed (ראו הודעה בדף הבית).",
+      };
+    }
+    throw error;
   }
 
-  const playersBySlug = await getPlayersBySlug();
-  const niv = playersBySlug.niv;
-  const gilad = playersBySlug.gilad;
-  if (!niv || !gilad) {
+  if (!ctx.ready) {
     return {
       ok: false,
-      message: "שחקנים לא אותחלו. הריצו npm run db:seed לאחר המיגרציה.",
+      message:
+        ctx.reason === "not_seeded"
+          ? "שחקנים לא אותחלו. הריצו npm run db:seed לאחר המיגרציה."
+          : "מסד הנתונים עדיין לא מוכן. הריצו db:push ו-db:seed (ראו הודעה בדף הבית).",
     };
   }
+
+  const { competition, niv, gilad } = ctx;
 
   let winnerPlayerId: string | null = null;
   if (data.nivScore > data.giladScore) {
@@ -72,17 +84,27 @@ export async function saveMatch(
     winnerPlayerId = gilad.id;
   }
 
-  const db = getDb();
-  await db.insert(matches).values({
-    competitionId: competition.id,
-    playedAt,
-    nivScore: data.nivScore,
-    giladScore: data.giladScore,
-    winnerPlayerId,
-    nivTimeUsedSec: data.nivTimeUsedSec,
-    giladTimeUsedSec: data.giladTimeUsedSec,
-    notes: data.notes,
-  });
+  try {
+    const db = getDb();
+    await db.insert(matches).values({
+      competitionId: competition.id,
+      playedAt,
+      nivScore: data.nivScore,
+      giladScore: data.giladScore,
+      winnerPlayerId,
+      nivTimeUsedSec: data.nivTimeUsedSec,
+      giladTimeUsedSec: data.giladTimeUsedSec,
+      notes: data.notes,
+    });
+  } catch (error) {
+    if (isDatabaseSetupError(error)) {
+      return {
+        ok: false,
+        message: "מסד הנתונים עדיין לא מוכן. הריצו db:push ו-db:seed (ראו הודעה בדף הבית).",
+      };
+    }
+    throw error;
+  }
 
   revalidatePath("/");
   revalidatePath("/log");

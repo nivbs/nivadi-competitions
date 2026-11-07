@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 
 import { PlayerPicker } from "@/components/auth/PlayerPicker";
 import { SignInScreen } from "@/components/auth/SignInScreen";
@@ -21,18 +22,32 @@ function resolveStep(
   if (playerOk) {
     redirect("/");
   }
-  if (requested === "player" && siteOk) {
-    return "player";
-  }
-  if (requested === "gate") {
+  if (!siteOk) {
     return "gate";
   }
-  return siteOk ? "player" : "gate";
+  if (requested === "gate") {
+    return siteOk ? "player" : "gate";
+  }
+  return "player";
 }
 
-export const instant = false;
+function SignInFallback() {
+  return (
+    <div className="flex min-h-svh items-center justify-center px-4">
+      <div className="h-10 w-48 animate-pulse rounded-md bg-[var(--color-border)]/50" />
+    </div>
+  );
+}
 
-export default async function SignInPage({ searchParams }: PageProps) {
+export default function SignInPage({ searchParams }: PageProps) {
+  return (
+    <Suspense fallback={<SignInFallback />}>
+      <SignInPageContent searchParams={searchParams} />
+    </Suspense>
+  );
+}
+
+async function SignInPageContent({ searchParams }: PageProps) {
   const { step: stepParam } = await searchParams;
   const siteOk = await hasSiteAccessFromCookies();
   const playerSlug = await getPlayerSlugFromCookies();

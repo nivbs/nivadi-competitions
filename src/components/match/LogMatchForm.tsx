@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 
 import { saveMatch, type SaveMatchState } from "@/actions/match";
+import { ClockTimeField } from "@/components/match/ClockTimeField";
 import { MAX_TIME_SECONDS } from "@/lib/match-validation";
 
 const initialState: SaveMatchState | undefined = undefined;
@@ -92,55 +93,31 @@ export function LogMatchForm() {
         <p className="text-sm font-medium text-[var(--color-ink)]">
           זמן שעון שנוצל (כל צד עד {MAX_TIME_SECONDS / 60} דקות)
         </p>
-        <div className="mt-3 grid grid-cols-2 gap-4">
-          <div>
-            <label
-              htmlFor="nivTimeUsedSec"
-              className="text-xs text-[var(--color-ink-muted)]"
-            >
-              ניב — שניות
-            </label>
-            <input
-              id="nivTimeUsedSec"
-              name="nivTimeUsedSec"
-              type="number"
-              min={0}
-              max={MAX_TIME_SECONDS}
-              defaultValue={0}
-              required
-              className="mt-1 w-full rounded-[var(--radius-sm)] border border-[var(--color-border)] bg-[var(--color-canvas)] px-3 py-3 text-base tabular-nums outline-none focus:ring-2 focus:ring-[var(--color-focus)]"
-              dir="ltr"
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="giladTimeUsedSec"
-              className="text-xs text-[var(--color-ink-muted)]"
-            >
-              גלעד — שניות
-            </label>
-            <input
-              id="giladTimeUsedSec"
-              name="giladTimeUsedSec"
-              type="number"
-              min={0}
-              max={MAX_TIME_SECONDS}
-              defaultValue={0}
-              required
-              className="mt-1 w-full rounded-[var(--radius-sm)] border border-[var(--color-border)] bg-[var(--color-canvas)] px-3 py-3 text-base tabular-nums outline-none focus:ring-2 focus:ring-[var(--color-focus)]"
-              dir="ltr"
-            />
-          </div>
+        <p className="mt-1 text-xs text-[var(--color-ink-muted)]">
+          ברירת מחדל 6:00 — עדכנו דקות ושניות רק אם שיחקתם מהר יותר.
+        </p>
+        <div className="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-4">
+          <ClockTimeField
+            idPrefix="niv-clock"
+            name="nivTimeUsedSec"
+            playerLabel="ניב"
+            error={
+              state && !state.ok
+                ? state.fieldErrors?.nivTimeUsedSec?.join(" ")
+                : undefined
+            }
+          />
+          <ClockTimeField
+            idPrefix="gilad-clock"
+            name="giladTimeUsedSec"
+            playerLabel="גלעד"
+            error={
+              state && !state.ok
+                ? state.fieldErrors?.giladTimeUsedSec?.join(" ")
+                : undefined
+            }
+          />
         </div>
-        {(state && !state.ok && state.fieldErrors?.nivTimeUsedSec) ||
-        (state && !state.ok && state.fieldErrors?.giladTimeUsedSec) ? (
-          <p className="mt-2 text-sm text-[var(--color-danger)]" role="alert">
-            {[
-              ...(state.fieldErrors?.nivTimeUsedSec ?? []),
-              ...(state.fieldErrors?.giladTimeUsedSec ?? []),
-            ].join(" ")}
-          </p>
-        ) : null}
       </div>
 
       <div>

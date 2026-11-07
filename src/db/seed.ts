@@ -1,3 +1,8 @@
+import { config } from "dotenv";
+
+config();
+config({ path: ".env.local", override: true });
+
 import { eq } from "drizzle-orm";
 
 import { getDb } from "./index";

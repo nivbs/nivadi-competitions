@@ -7,12 +7,8 @@ import {
 } from "@/lib/session/types";
 import { getSessionSecret, verifyPayload } from "@/lib/session/sign";
 
-function resolveSecret(): string | null {
-  try {
-    return getSessionSecret();
-  } catch {
-    return null;
-  }
+function resolveSecret(): string {
+  return getSessionSecret();
 }
 
 export async function requestHasSiteAccess(
@@ -21,11 +17,11 @@ export async function requestHasSiteAccess(
   if (!siteCookieValue) {
     return false;
   }
-  const secret = resolveSecret();
-  if (!secret) {
-    return false;
-  }
-  const payload = await verifyPayload(secret, siteCookieValue, SITE_ACCESS_TOKEN);
+  const payload = await verifyPayload(
+    resolveSecret(),
+    siteCookieValue,
+    SITE_ACCESS_TOKEN,
+  );
   return payload === SITE_ACCESS_TOKEN;
 }
 
@@ -35,11 +31,7 @@ export async function requestPlayerSlug(
   if (!playerCookieValue) {
     return null;
   }
-  const secret = resolveSecret();
-  if (!secret) {
-    return null;
-  }
-  const payload = await verifyPayload(secret, playerCookieValue);
+  const payload = await verifyPayload(resolveSecret(), playerCookieValue);
   if (!payload || !isPlayerSlug(payload)) {
     return null;
   }

@@ -24,7 +24,7 @@ export async function verifySitePasswordAction(
     return { ok: false, message: "סיסמה לא נכונה." };
   }
   await setSiteAccessCookie();
-  return { ok: true };
+  redirect("/sign-in?step=player");
 }
 
 export async function selectPlayerFormAction(formData: FormData): Promise<void> {
