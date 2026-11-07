@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { ClerkProvider } from "@clerk/nextjs";
 import { IBM_Plex_Sans, IBM_Plex_Sans_Hebrew, IBM_Plex_Mono } from "next/font/google";
 
 import "./globals.css";
@@ -38,16 +37,14 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ClerkProvider>
-      <html
-        lang="he"
-        dir="rtl"
-        className={`${plexSansLatin.variable} ${plexSansHebrew.variable} ${plexMono.variable} h-full`}
-      >
-        <body className="min-h-full bg-[var(--color-canvas)] font-sans text-[var(--color-ink)] antialiased">
-          {children}
-        </body>
-      </html>
-    </ClerkProvider>
+    <html
+      lang="he"
+      dir="rtl"
+      className={`${plexSansLatin.variable} ${plexSansHebrew.variable} ${plexMono.variable} h-full`}
+    >
+      <body className="min-h-full bg-[var(--color-canvas)] font-sans text-[var(--color-ink)] antialiased">
+        {children}
+      </body>
+    </html>
   );
 }

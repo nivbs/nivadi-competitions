@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { MobileNav } from "@/components/shell/MobileNav";
 import { UserMenu } from "@/components/shell/UserMenu";
+import type { PlayerSlug } from "@/lib/session/types";
 
 const navItems = [
   { href: "/", label: "בית" },
@@ -11,7 +12,13 @@ const navItems = [
   { href: "/analysis", label: "ניתוח" },
 ];
 
-export function AppShell({ children }: { children: ReactNode }) {
+export function AppShell({
+  children,
+  playerSlug,
+}: {
+  children: ReactNode;
+  playerSlug: PlayerSlug;
+}) {
   return (
     <div className="relative flex min-h-svh flex-col bg-[var(--color-canvas)]">
       <header className="sticky top-0 z-30 border-b border-[var(--color-border)] bg-[var(--color-surface)]/95 px-4 py-3 backdrop-blur-sm">
@@ -34,7 +41,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 </Link>
               ))}
             </nav>
-            <UserMenu />
+            <UserMenu playerSlug={playerSlug} />
           </div>
         </div>
       </header>

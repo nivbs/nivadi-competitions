@@ -19,7 +19,6 @@ export const players = pgTable("players", {
   id: uuid("id").defaultRandom().primaryKey(),
   slug: text("slug").notNull().unique(),
   displayName: text("display_name").notNull(),
-  clerkUserId: text("clerk_user_id"),
 });
 
 export const competitions = pgTable("competitions", {

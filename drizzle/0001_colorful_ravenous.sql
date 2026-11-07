@@ -1,0 +1,1 @@
+ALTER TABLE "players" DROP COLUMN "clerk_user_id";

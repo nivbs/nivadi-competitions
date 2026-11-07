@@ -5,7 +5,7 @@
 ## מה בתוך הפרויקט
 
 - **Next.js 16** (App Router), TypeScript, Tailwind v4
-- **Clerk** — התחברות (שני משתמשים)
+- **סיסמת אתר + בחירת שחקן** — כניסה פשוטה (ללא Clerk)
 - **Neon** — PostgreSQL serverless
 - **Drizzle ORM** — סכמה ומיגרציות
 - **GSAP** + `@gsap/react` — אנימציית פתיחה “שש בש” (קוביות 6 ו־5), עם כיבוי אוטומטי ב־`prefers-reduced-motion`
@@ -15,28 +15,29 @@
 1. העתיקו `.env.example` ל־`.env.local` ומלאו:
 
    - `DATABASE_URL` — מחרוזת החיבור מ־[Neon](https://neon.tech)
-   - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` ו־`CLERK_SECRET_KEY` — מ־[Clerk](https://dashboard.clerk.com)
-   - `NIV_CLERK_USER_ID` ו־`GILAD_CLERK_USER_ID` — מזהי משתמש מ-Clerk (Dashboard → Users)
+   - `SESSION_SECRET` — מפתח לחתימת עוגיות (למשל `openssl rand -base64 32`)
 
-2. החלת הסכמה על Neon:
+2. כניסה לאתר: סיסמת אתר (`GN110225` כברירת מחדל, או `SITE_ACCESS_PASSWORD`), ואז בחירה **ניב** או **גלעד**.
+
+3. החלת הסכמה על Neon:
 
    ```bash
    npm run db:push
    ```
 
-3. Seed — שחקנים (ניב, גלעד) ותחרות “שש בש”:
+4. Seed — שחקנים (ניב, גלעד) ותחרות “שש בש”:
 
    ```bash
    npm run db:seed
    ```
 
-4. הרצה מקומית:
+5. הרצה מקומית:
 
    ```bash
    npm run dev
    ```
 
-5. **Vercel:** חברו את הריפו, הגדירו אותן משתני סביבה בדשבורד, והריצו `db:push` + `db:seed` מול מסד הייצור (או דרך SQL).
+6. **Vercel:** חברו את הריפו, הגדירו `DATABASE_URL` ו־`SESSION_SECRET` בדשבורד, והריצו `db:push` + `db:seed` מול מסד הייצור (או דרך SQL).
 
 ## סקריפטים
 

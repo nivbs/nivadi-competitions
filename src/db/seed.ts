@@ -11,7 +11,6 @@ async function seed() {
     .values({
       slug: "niv",
       displayName: "Niv",
-      clerkUserId: process.env.NIV_CLERK_USER_ID ?? null,
     })
     .onConflictDoNothing({ target: players.slug });
 
@@ -20,7 +19,6 @@ async function seed() {
     .values({
       slug: "gilad",
       displayName: "Gilad",
-      clerkUserId: process.env.GILAD_CLERK_USER_ID ?? null,
     })
     .onConflictDoNothing({ target: players.slug });
 

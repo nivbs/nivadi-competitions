@@ -8,7 +8,7 @@ web
 
 ## Stack
 
-Next.js with TypeScript and React; deployed on Vercel (Hobby). Neon Postgres for the database. Clerk for authentication. Drizzle ORM for database access.
+Next.js with TypeScript and React; deployed on Vercel (Hobby). Neon Postgres for the database. Shared site password plus signed cookies for player identity (Niv or Gilad). Drizzle ORM for database access.
 
 ## Users
 
@@ -40,14 +40,14 @@ A **couple-only competition ledger** that treats **clock time** as structured ma
 
 - **Player cardinality:** Only two competitors in the product’s core model (Niv and Gilad); not designed for teams, spectators, or open registration flows unless explicitly expanded later.
 - **Deployment and data:** Hosted on **Vercel Hobby** with **Neon Postgres**; **Hobby** plan limits and Neon operational limits apply (**inferred:** standard platform quotas; not enumerated here).
-- **Authentication:** **Clerk** backs sign-in; access is aligned with a **small, fixed user set** (**inferred:** not a public consumer app with open sign-up).
+- **Authentication:** A **shared site password** plus **player selection** (Niv or Gilad) stored in signed HTTP-only cookies—not a public sign-up flow; intended for exactly two users.
 - **Data access:** Historical matches and analyses are **private to the two accounts** (**inferred** from “private-ish” and two-account intent; exact sharing/export rules are **open**).
 
 ### Explicitly inferred (labelled)
 
 - **Game roadmap:** Only backgammon is named at init; other games are **out of scope until explicitly added** (**inferred**).
 - **Analysis contents:** Beyond “including time stats,” specific analytics (e.g., Elo-like ratings, streaks, averages, time-over-score correlations) are **not** locked—implementation should remain consistent with “cumulative results including time” (**inferred**).
-- **“Private-ish” enforcement:** May combine Clerk-only access, no public leaderboards, and no SEO/indexing of scores (**inferred**); exact threat model (link sharing, exports) is **open**.
+- **“Private-ish” enforcement:** May combine password gate, no public leaderboards, and no SEO/indexing of scores (**inferred**); exact threat model (link sharing, exports) is **open**.
 
 ## Brand Commitments
 

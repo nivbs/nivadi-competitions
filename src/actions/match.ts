@@ -1,11 +1,10 @@
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 
 import { getDb } from "@/db";
 import { matches } from "@/db/schema";
-import { assertEnvPlayerMapping, getPlayerSlugForClerkUser } from "@/lib/auth-players";
+import { getPlayerSlugFromSession } from "@/lib/session/player";
 import { matchFormSchema } from "@/lib/match-validation";
 import { getActiveCompetition, getPlayersBySlug } from "@/lib/queries";
 
@@ -17,19 +16,9 @@ export async function saveMatch(
   _prevState: SaveMatchState | undefined,
   formData: FormData,
 ): Promise<SaveMatchState> {
-  assertEnvPlayerMapping();
-
-  const { userId } = await auth();
-  if (!userId) {
-    return { ok: false, message: "צריך להתחבר כדי לשמור משחק." };
-  }
-  const playerSlug = getPlayerSlugForClerkUser(userId);
+  const playerSlug = await getPlayerSlugFromSession();
   if (!playerSlug) {
-    return {
-      ok: false,
-      message:
-        "החשבון שלך לא ממופה לניב או גלעד. הגדירו NIV_CLERK_USER_ID ו-GILAD_CLERK_USER_ID בסביבה.",
-    };
+    return { ok: false, message: "צריך לבחור שחקן כדי לשמור משחק." };
   }
 
   const parsed = matchFormSchema.safeParse({
