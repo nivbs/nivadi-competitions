@@ -147,6 +147,7 @@ Approved moments (all in `src/components/motion/` and `SheshBeshIntro.tsx`):
 - **Save game:** the winner's checkers (1, 2 or 3) hop to the winner's side while the loser's checker is flicked off with a BONK (sound included). Gammon and backgammon shake the header and nav.
 - **Winner:** the doubling cube spins 2 to 64 and slams down, a crown drops on it, the loser's checker wobbles sadly. Backgammon rains checkers. Triggered on gammon/backgammon saves and when a session is finished.
 - **Timer:** dice rattle on the first tap, a nervous checker pile and trembling digits under 10 seconds, a heavy flag drop with a cymbal crash on timeout.
+- **Analysis:** hero scoreboard counts up, stacks and split bar settle; stat cards batch in on scroll; row bars scrub with scroll; stat tap and score tap get a checker hop or gold pulse.
 - **Navigation and presses:** buttons and links press down like checkers, pages flip up into place (not on the timer).
 - **Language and player switch:** a die is re-rolled.
 
