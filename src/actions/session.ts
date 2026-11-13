@@ -1,6 +1,6 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { count, eq } from "drizzle-orm";
 
 import { getDict } from "@/lib/i18n/server";
 import { getDb } from "@/db";
@@ -85,6 +85,40 @@ export async function updateSession(
       .where(eq(sessions.id, parsedId.data));
     revalidateAll();
     return { ok: true, message: t.actions.updated };
+  });
+}
+
+/** Finish when there are saved games, or delete the session when it is still empty. */
+export async function closeOpenSession(id: string): Promise<ActionResult<{ data?: { deleted: boolean } }>> {
+  const { t } = await getDict();
+  const parsedId = uuidSchema.safeParse(id);
+  if (!parsedId.success) return { ok: false, message: t.actions.invalidId };
+  return withContext<{ data?: { deleted: boolean } }>(async () => {
+    const db = getDb();
+    const [session] = await db
+      .select({ id: sessions.id })
+      .from(sessions)
+      .where(eq(sessions.id, parsedId.data));
+    if (!session) return { ok: false, message: t.actions.sessionNotFound };
+
+    const [tally] = await db
+      .select({ n: count() })
+      .from(games)
+      .where(eq(games.sessionId, parsedId.data));
+    const gameCount = Number(tally?.n ?? 0);
+
+    if (gameCount === 0) {
+      await db.delete(sessions).where(eq(sessions.id, parsedId.data));
+      revalidateAll();
+      return { ok: true, message: t.actions.sessionDeleted, data: { deleted: true } };
+    }
+
+    await db
+      .update(sessions)
+      .set({ finishedAt: new Date(), updatedAt: new Date() })
+      .where(eq(sessions.id, parsedId.data));
+    revalidateAll();
+    return { ok: true, message: t.actions.sessionFinished, data: { deleted: false } };
   });
 }
 

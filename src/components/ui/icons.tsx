@@ -73,10 +73,27 @@ export function FlagIcon(props: P) {
     </svg>
   );
 }
+export function StopRoundIcon(props: P) {
+  return (
+    <svg {...base} {...props}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M8.5 12h7" strokeWidth="2.2" />
+    </svg>
+  );
+}
 export function PlusIcon(props: P) {
   return (
     <svg {...base} {...props}>
       <path d="M12 5v14M5 12h14" />
+    </svg>
+  );
+}
+
+/** Points down; rotate 180° when a section is expanded. */
+export function ChevronDownIcon(props: P) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M6 9l6 6 6-6" />
     </svg>
   );
 }

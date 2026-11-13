@@ -12,14 +12,15 @@ import { PointsRow } from "@/components/board/PointsRow";
 import { PlayerMark } from "@/components/board/PlayerMark";
 import { playerFill } from "@/lib/player-style";
 import { addGame, deleteGame } from "@/actions/game";
-import { finishSession } from "@/actions/session";
+import { closeOpenSession } from "@/actions/session";
 import { ClockSettingsSheet } from "@/components/timer/ClockSettingsSheet";
+import { useChampionsAnthem } from "@/components/timer/useChampionsAnthem";
 import { beep, buzz, useWakeLock } from "@/components/timer/useWakeLock";
 import { WinnerSheet } from "@/components/timer/WinnerSheet";
 import { BottomSheet } from "@/components/ui/BottomSheet";
 import { useI18n } from "@/lib/i18n/client";
 import { IconButton } from "@/components/ui/IconButton";
-import { FlagIcon, PauseIcon, PlayIcon, SettingsIcon, UndoIcon } from "@/components/ui/icons";
+import { FlagIcon, PauseIcon, PlayIcon, SettingsIcon, StopRoundIcon, UndoIcon } from "@/components/ui/icons";
 import {
   adjustBank,
   applySettings,
@@ -78,6 +79,7 @@ export function TimerClient({ resume: resumeSession }: { resume: ResumeSession |
   const [now, setNow] = useState(0);
 
   const [winnerOpen, setWinnerOpen] = useState(false);
+  useChampionsAnthem(winnerOpen);
   const [crownWinner, setCrownWinner] = useState<PlayerSlug | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [savedOpen, setSavedOpen] = useState(false);
@@ -200,25 +202,40 @@ export function TimerClient({ resume: resumeSession }: { resume: ResumeSession |
     setClock(createClock(clock.settings));
   };
 
+  const abortGame = () => {
+    setError(undefined);
+    closeWinner();
+    setClock(createClock(clock.settings));
+  };
+
   const finish = () => {
     const id = sessionId;
     if (summary.leader) fx({ kind: "cube", winner: summary.leader, rain: false, big: false });
     startTransition(async () => {
       if (id) {
-        const res = await finishSession(id);
+        const res = await closeOpenSession(id);
         if (!res.ok) {
           setError(res.message);
           return;
         }
+        localStorage.removeItem(STORAGE_KEY);
+        setSavedOpen(false);
+        setSessionId(null);
+        setScored([]);
+        setClock(createClock(clock.settings));
+        if (!res.data?.deleted) router.push(`/history/${id}`);
+        else router.push("/history");
+        return;
       }
       localStorage.removeItem(STORAGE_KEY);
       setSavedOpen(false);
-      setSessionId(null);
       setScored([]);
       setClock(createClock(clock.settings));
-      if (id) router.push(`/history/${id}`);
     });
   };
+
+  const canEndSession = sessionId !== null;
+  const clockBusy = clock.status !== "idle";
 
   const undoLast = () => {
     const last = scored[scored.length - 1];
@@ -343,7 +360,16 @@ export function TimerClient({ resume: resumeSession }: { resume: ResumeSession |
                 <PauseIcon />
               </IconButton>
             )}
-            <IconButton tone="onDark" label={t.timer.finish} disabled={scored.length === 0} onClick={() => setSavedOpen(true)}>
+            <IconButton
+              tone="onDark"
+              label={t.timer.stopGame}
+              title={t.timer.stopGameHint}
+              disabled={!clockBusy || pending}
+              onClick={abortGame}
+            >
+              <StopRoundIcon />
+            </IconButton>
+            <IconButton tone="onDark" label={t.timer.finish} disabled={!canEndSession || pending} onClick={() => setSavedOpen(true)}>
               <FlagIcon />
             </IconButton>
           </div>
@@ -357,6 +383,21 @@ export function TimerClient({ resume: resumeSession }: { resume: ResumeSession |
         onClose={() => setSettingsOpen(false)}
         onSettings={(s: ClockSettings) => commit((c, t) => applySettings(c, s, t))}
         onAdjust={(p, d) => commit((c, t) => adjustBank(c, p, d, t))}
+        onSaveGameTimes={(bankSec) =>
+          commit((c, t) => {
+            let next = c;
+            for (const p of ["niv", "gilad"] as const) {
+              const target = bankSec[p];
+              const liveSec = Math.ceil(next.bankMs[p] / 1000);
+              const delta = target - liveSec;
+              if (delta !== 0) next = adjustBank(next, p, delta, t);
+            }
+            if (next.status === "idle") {
+              return applySettings(next, { ...next.settings, bankSec }, t);
+            }
+            return next;
+          })
+        }
       />
 
       <WinnerSheet
@@ -369,25 +410,36 @@ export function TimerClient({ resume: resumeSession }: { resume: ResumeSession |
         error={error}
         onClose={closeWinner}
         onSave={save}
+        onAbortGame={abortGame}
       />
 
-      <BottomSheet open={savedOpen} title={scored.length ? t.timer.savedGame(scored.length) : t.timer.finish} onClose={() => setSavedOpen(false)}>
-        <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-[var(--color-ink-muted)]" dir="ltr">
-          <PlayerMark player="niv" label={`${t.players.niv} ${summary.niv.points} (${summary.niv.games})`} />
-          <span aria-hidden>–</span>
-          <PlayerMark player="gilad" label={`${summary.gilad.points} (${summary.gilad.games}) ${t.players.gilad}`} />
-        </p>
+      <BottomSheet
+        open={savedOpen}
+        title={scored.length ? t.timer.savedGame(scored.length) : t.timer.abandonSession}
+        onClose={() => setSavedOpen(false)}
+      >
+        {scored.length > 0 ? (
+          <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-[var(--color-ink-muted)]" dir="ltr">
+            <PlayerMark player="niv" label={`${t.players.niv} ${summary.niv.points} (${summary.niv.games})`} />
+            <span aria-hidden>–</span>
+            <PlayerMark player="gilad" label={`${summary.gilad.points} (${summary.gilad.games}) ${t.players.gilad}`} />
+          </p>
+        ) : (
+          <p className="text-sm text-[var(--color-ink-muted)]">{t.timer.abandonSessionBody}</p>
+        )}
         <div className="mt-5 grid gap-3">
-          <button type="button" onClick={nextGame} className="h-12 rounded-[var(--radius-md)] bg-[var(--color-brand)] font-semibold text-white">
-            {t.timer.nextGame}
-          </button>
+          {scored.length > 0 ? (
+            <button type="button" onClick={nextGame} className="h-12 rounded-[var(--radius-md)] bg-[var(--color-brand)] font-semibold text-white">
+              {t.timer.nextGame}
+            </button>
+          ) : null}
           <button
             type="button"
             onClick={finish}
             disabled={pending}
             className="h-12 rounded-[var(--radius-md)] border border-[var(--color-border-strong)] font-semibold text-[var(--color-ink)] disabled:opacity-60"
           >
-            {t.timer.finish}
+            {scored.length > 0 ? t.timer.finish : t.timer.abandonSession}
           </button>
         </div>
         {error ? <p className="mt-3 text-sm text-[var(--color-danger)]">{error}</p> : null}
@@ -395,7 +447,7 @@ export function TimerClient({ resume: resumeSession }: { resume: ResumeSession |
       </div>
 
       <div className="mx-auto hidden max-w-md flex-col items-center gap-3 px-6 py-16 text-center sm:flex">
-        <h1 className="text-xl font-semibold text-[var(--color-ink)]">{t.timer.mobileOnlyTitle}</h1>
+        <h1 className="font-display text-xl font-bold text-[var(--color-ink)]">{t.timer.mobileOnlyTitle}</h1>
         <p className="text-sm text-[var(--color-ink-muted)]">{t.timer.mobileOnlyBody}</p>
         <Link href="/" className="font-medium text-[var(--color-brand)] underline">
           {t.timer.mobileOnlyHome}

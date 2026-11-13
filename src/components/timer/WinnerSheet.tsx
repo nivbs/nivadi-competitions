@@ -25,9 +25,10 @@ type Props = {
   error?: string;
   onClose: () => void;
   onSave: (winner: PlayerSlug, type: WinType) => void;
+  onAbortGame?: () => void;
 };
 
-export function WinnerSheet({ open, presetWinner, timedOutNote, pending, error, onClose, onSave }: Props) {
+export function WinnerSheet({ open, presetWinner, timedOutNote, pending, error, onClose, onSave, onAbortGame }: Props) {
   const { t } = useI18n();
   const [picked, setPicked] = useState<PlayerSlug | null>(null);
   const winner = picked ?? presetWinner;
@@ -88,6 +89,16 @@ export function WinnerSheet({ open, presetWinner, timedOutNote, pending, error, 
           ) : null}
         </div>
       )}
+      {onAbortGame ? (
+        <button
+          type="button"
+          onClick={onAbortGame}
+          disabled={pending}
+          className="mt-4 h-11 w-full rounded-[var(--radius-md)] border border-[var(--color-border-strong)] text-sm font-semibold text-[var(--color-ink-muted)] disabled:opacity-60"
+        >
+          {t.winnerSheet.cancelGame}
+        </button>
+      ) : null}
       {error ? (
         <p className="mt-3 text-sm text-[var(--color-danger)]" role="alert">
           {error}
