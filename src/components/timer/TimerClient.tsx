@@ -143,9 +143,16 @@ export function TimerClient({ resume: resumeSession }: { resume: ResumeSession |
 
   const summary = useMemo(() => summarizeGames(scored), [scored]);
 
-  // Any tap on either cube hands the turn over. The first tap starts the
-  // opponent of the tapped player. Paused / flagged clocks ignore taps.
+  // Any tap on either half hands the turn over. The first tap starts the
+  // opponent of the tapped player. A paused half opens that player's win
+  // sheet (Gilad's is seated on his flipped half). Flagged clocks already
+  // have the sheet open.
   const onHalfTap = (p: PlayerSlug) => {
+    if (winnerOpen) return;
+    if (clock.status === "paused") {
+      openWinner(p);
+      return;
+    }
     if (clock.status === "idle") {
       buzz(20);
       fx({ kind: "rattle" });
@@ -335,9 +342,9 @@ export function TimerClient({ resume: resumeSession }: { resume: ResumeSession |
 
   return (
     <>
-      <div className="fixed inset-x-0 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] top-[3.75rem] z-20 flex flex-col overflow-hidden bg-[var(--color-walnut-deep)] sm:hidden">
-        {renderHalf("gilad", true)}
-        <div dir="ltr" className="relative flex items-center justify-between gap-2 border-y-2 border-[var(--color-gold)] px-4 py-3">
+      <div className="fixed inset-x-0 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] top-[3.75rem] z-20 grid grid-rows-[minmax(0,1fr)_auto_minmax(0,1fr)] overflow-hidden bg-[var(--color-walnut-deep)] sm:hidden">
+        <div className="col-start-1 row-start-1 flex min-h-0">{renderHalf("gilad", true)}</div>
+        <div dir="ltr" className="relative col-start-1 row-start-2 flex items-center justify-between gap-2 border-y-2 border-[var(--color-gold)] px-4 py-3">
           <span aria-hidden className="absolute inset-x-0 top-0 h-1/2 bg-[var(--player-niv-fill)]" />
           <span aria-hidden className="absolute inset-x-0 bottom-0 h-1/2 bg-[var(--player-gilad-fill)]" />
           <span aria-hidden className="absolute inset-x-0 top-1/2 -translate-y-1/2">
@@ -375,7 +382,7 @@ export function TimerClient({ resume: resumeSession }: { resume: ResumeSession |
           </div>
           <span className="relative">{crownBtn("niv")}</span>
         </div>
-        {renderHalf("niv")}
+        <div className="col-start-1 row-start-3 flex min-h-0">{renderHalf("niv")}</div>
 
       <ClockSettingsSheet
         open={settingsOpen}
