@@ -9,7 +9,7 @@ export type ClockSettings = {
 
 export const DEFAULT_SETTINGS: ClockSettings = {
   bankSec: { niv: 360, gilad: 360 },
-  delaySec: 12,
+  delaySec: 0,
 };
 
 export type ClockStatus = "idle" | "running" | "paused" | "flagged";
