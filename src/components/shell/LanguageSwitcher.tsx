@@ -1,5 +1,7 @@
 "use client";
 
+import { useFx } from "@/components/motion/FxProvider";
+import type { DieFace } from "@/components/board/Die";
 import { useTransition } from "react";
 
 import { setLocale } from "@/actions/locale";
@@ -41,6 +43,7 @@ const OPTIONS: { locale: Locale; Flag: () => React.JSX.Element }[] = [
 export function LanguageSwitcher() {
   const { locale, t } = useI18n();
   const [pending, startTransition] = useTransition();
+  const fx = useFx();
 
   return (
     <div role="group" aria-label={t.lang.label} className="flex shrink-0 items-center gap-1" dir="ltr">
@@ -56,11 +59,14 @@ export function LanguageSwitcher() {
             title={t.lang[l]}
             disabled={pending}
             onClick={() => {
-              if (!active) startTransition(() => setLocale(l));
+              if (!active) {
+                fx({ kind: "reroll", face: ((Math.floor(Math.random() * 6) + 1) as DieFace) });
+                startTransition(() => setLocale(l));
+              }
             }}
             className={`inline-flex h-8 w-9 items-center justify-center rounded-md border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] ${
               active
-                ? "border-[var(--color-brand)] bg-[var(--color-canvas)]"
+                ? "border-[var(--color-gold)] bg-[var(--color-cream)]"
                 : "border-transparent opacity-60 hover:opacity-100"
             }`}
           >

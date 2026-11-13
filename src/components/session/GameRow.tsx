@@ -1,5 +1,6 @@
 "use client";
 
+import { PlayerMark } from "@/components/board/PlayerMark";
 import { IconButton } from "@/components/ui/IconButton";
 import { WinTypeSelect, WinnerSelect } from "@/components/ui/Segmented";
 import { TrashIcon } from "@/components/ui/icons";
@@ -43,8 +44,9 @@ export function GameRow({
         <WinTypeSelect value={game.winType} onChange={(winType) => onChange({ ...game, winType })} />
       </div>
       {hasTime ? (
-        <p className="mt-2 text-xs tabular-nums text-[var(--color-ink-muted)]" dir="ltr">
-          {t.gameRow.time(formatClock(game.nivTimeUsedSec ?? 0), formatClock(game.giladTimeUsedSec ?? 0), t.players.niv, t.players.gilad)}
+        <p className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs tabular-nums text-[var(--color-ink-muted)]" dir="ltr">
+          <PlayerMark player="niv" label={`${t.players.niv} ${formatClock(game.nivTimeUsedSec ?? 0)}`} size={16} />
+          <PlayerMark player="gilad" label={`${t.players.gilad} ${formatClock(game.giladTimeUsedSec ?? 0)}`} size={16} />
         </p>
       ) : null}
     </li>

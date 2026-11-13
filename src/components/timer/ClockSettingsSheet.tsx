@@ -1,5 +1,6 @@
 "use client";
 
+import { PlayerMark } from "@/components/board/PlayerMark";
 import { BottomSheet } from "@/components/ui/BottomSheet";
 import type { ClockSettings, ClockState } from "@/lib/clock/engine";
 import { formatMs } from "@/lib/clock/engine";
@@ -42,7 +43,7 @@ export function ClockSettingsSheet({ open, clock, onClose, onSettings, onAdjust 
           <div className="mt-3 space-y-3">
             {PLAYER_SLUGS.map((p) => (
               <div key={p} className="flex items-center gap-2">
-                <span className="w-12 text-sm font-medium">{t.players[p]}</span>
+                <PlayerMark player={p} label={t.players[p]} size={16} className="w-20 shrink-0 text-sm font-medium" />
                 <span className="w-14 text-center font-mono tabular-nums" dir="ltr">
                   {formatMs(clock.bankMs[p])}
                 </span>
@@ -75,7 +76,7 @@ export function ClockSettingsSheet({ open, clock, onClose, onSettings, onAdjust 
           <div className="mt-3 space-y-3">
             {PLAYER_SLUGS.map((p) => (
               <div key={p} className="flex items-center gap-2">
-                <span className="w-12 text-sm font-medium">{t.players[p]}</span>
+                <PlayerMark player={p} label={t.players[p]} size={16} className="w-20 shrink-0 text-sm font-medium" />
                 <div className="flex flex-1 items-center justify-end gap-2" dir="ltr">
                   <button type="button" className={btn} onClick={() => setBank(p, -30)}>−30s</button>
                   <span className="w-14 text-center font-mono tabular-nums">{formatMs(settings.bankSec[p] * 1000)}</span>

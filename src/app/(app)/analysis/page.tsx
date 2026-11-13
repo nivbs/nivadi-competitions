@@ -1,3 +1,5 @@
+import { Checker } from "@/components/board/Checker";
+import { PlayerMark } from "@/components/board/PlayerMark";
 import { DatabaseSetupNotice } from "@/components/shell/DatabaseSetupNotice";
 import { VersusCard } from "@/components/session/VersusCard";
 import { analyzeSessions } from "@/lib/analysis";
@@ -7,7 +9,7 @@ import { listSessionsForCompetition } from "@/lib/queries";
 import { getDict } from "@/lib/i18n/server";
 
 const card =
-  "rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-soft)]";
+  "rounded-[var(--radius-md)] border border-[var(--color-border-strong)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-soft)]";
 const pct = (v: number | null) => (v === null ? "—" : `${Math.round(v * 100)}%`);
 
 export default async function AnalysisPage() {
@@ -46,7 +48,7 @@ export default async function AnalysisPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-6 sm:py-10">
-      <h1 className="text-2xl font-semibold sm:text-3xl">{t.analysis.title}</h1>
+      <h1 className="font-display text-3xl font-bold sm:text-4xl">{t.analysis.title}</h1>
       <p className="mt-2 text-[var(--color-ink-muted)]">
         {t.home.sessionsGames(a.totalSessions, a.totalGames)}
       </p>
@@ -73,21 +75,24 @@ export default async function AnalysisPage() {
         </div>
         <div className={card}>
           <p className="text-sm font-medium text-[var(--color-ink-muted)]">{t.analysis.sessionWins}</p>
-          <p className="mt-2 font-mono text-3xl font-semibold tabular-nums" dir="ltr">
-            {a.sessionWins.niv} · {a.sessionWins.gilad} · {a.sessionWins.ties}
+          <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-3xl font-semibold tabular-nums" dir="ltr">
+            <span className="inline-flex items-center gap-1.5"><Checker player="niv" size={20} aria-hidden />{a.sessionWins.niv}</span>
+            <span className="inline-flex items-center gap-1.5"><Checker player="gilad" size={20} aria-hidden />{a.sessionWins.gilad}</span>
+            <span className="text-[var(--color-ink-muted)]">= {a.sessionWins.ties}</span>
           </p>
         </div>
         <div className={card}>
           <p className="text-sm font-medium text-[var(--color-ink-muted)]">{t.analysis.bigWinShare}</p>
-          <p className="mt-2 text-lg font-medium tabular-nums" dir="ltr">
-            {t.players.niv} {pct(a.nivBigWinShare)} · {t.players.gilad} {pct(a.giladBigWinShare)}
+          <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-lg font-medium tabular-nums" dir="ltr">
+            <PlayerMark player="niv" label={pct(a.nivBigWinShare)} />
+            <PlayerMark player="gilad" label={pct(a.giladBigWinShare)} />
           </p>
         </div>
         <div className={card}>
           <p className="text-sm font-medium text-[var(--color-ink-muted)]">{t.analysis.avgTime}</p>
-          <p className="mt-2 text-lg font-medium tabular-nums" dir="ltr">
-            {a.avgTimeUsedSec.niv !== null ? formatClock(a.avgTimeUsedSec.niv) : "—"} ·{" "}
-            {a.avgTimeUsedSec.gilad !== null ? formatClock(a.avgTimeUsedSec.gilad) : "—"}
+          <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-lg font-medium tabular-nums" dir="ltr">
+            <PlayerMark player="niv" label={a.avgTimeUsedSec.niv !== null ? formatClock(a.avgTimeUsedSec.niv) : "—"} />
+            <PlayerMark player="gilad" label={a.avgTimeUsedSec.gilad !== null ? formatClock(a.avgTimeUsedSec.gilad) : "—"} />
           </p>
         </div>
       </div>
@@ -96,8 +101,10 @@ export default async function AnalysisPage() {
         <p>{streak}</p>
         <p>{pace}</p>
         <p>{timeLine}</p>
-        <p>
-          {t.analysis.timedOut} {t.players.niv} {a.timedOut.niv} · {t.players.gilad} {a.timedOut.gilad}
+        <p className="flex flex-wrap items-center gap-x-3 gap-y-1">
+          <span>{t.analysis.timedOut}</span>
+          <PlayerMark player="niv" label={`${t.players.niv} ${a.timedOut.niv}`} size={16} />
+          <PlayerMark player="gilad" label={`${t.players.gilad} ${a.timedOut.gilad}`} size={16} />
         </p>
       </div>
     </div>

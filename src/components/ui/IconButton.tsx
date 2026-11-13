@@ -2,7 +2,7 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 
 type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
   label: string;
-  tone?: "default" | "danger";
+  tone?: "default" | "danger" | "onDark";
   children: ReactNode;
 };
 
@@ -17,7 +17,9 @@ export function IconButton({
   const color =
     tone === "danger"
       ? "text-[var(--color-danger)] hover:bg-[var(--color-danger)]/10"
-      : "text-[var(--color-ink-muted)] hover:bg-[var(--color-border)]/50";
+      : tone === "onDark"
+        ? "text-[var(--color-cream)] hover:bg-white/10"
+        : "text-[var(--color-ink-muted)] hover:bg-[var(--color-border)]/50";
   return (
     <button
       type="button"

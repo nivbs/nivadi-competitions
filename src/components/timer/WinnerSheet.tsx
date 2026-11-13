@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 
+import { Checker } from "@/components/board/Checker";
+import { Die } from "@/components/board/Die";
+import { playerTone } from "@/lib/player-style";
 import { BottomSheet } from "@/components/ui/BottomSheet";
 import { useI18n } from "@/lib/i18n/client";
 import { CrownIcon } from "@/components/ui/icons";
@@ -37,7 +40,7 @@ export function WinnerSheet({ open, presetWinner, timedOutNote, pending, error, 
   return (
     <BottomSheet open={open} title={winner ? t.winnerSheet.how(t.players[winner]) : t.winnerSheet.who} onClose={close}>
       {timedOutNote ? (
-        <p className="mb-3 rounded-[var(--radius-sm)] bg-[var(--color-warning)]/15 px-3 py-2 text-sm text-[var(--color-ink)]">
+        <p className="mb-3 rounded-[var(--radius-sm)] bg-[var(--color-gold)]/25 px-3 py-2 text-sm text-[var(--color-ink)]">
           {timedOutNote}
         </p>
       ) : null}
@@ -49,9 +52,11 @@ export function WinnerSheet({ open, presetWinner, timedOutNote, pending, error, 
               key={p}
               type="button"
               onClick={() => setPicked(p)}
-              className="flex h-28 flex-col items-center justify-center gap-2 rounded-[var(--radius-lg)] border border-[var(--color-border-strong)] bg-[var(--color-surface)] text-lg font-semibold hover:border-[var(--color-brand)]"
+              className={`flex h-28 flex-col items-center justify-center gap-2 rounded-[var(--radius-lg)] font-display text-xl font-bold shadow-[var(--shadow-soft)] transition active:scale-[0.97] ${playerTone(p)}`}
             >
-              <CrownIcon width={28} height={28} className="text-[var(--color-accent-muted)]" />
+              <Checker player={p} size={40}>
+                <CrownIcon width={22} height={22} className={p === "niv" ? "text-[var(--color-gold)]" : "text-[var(--color-accent-muted)]"} />
+              </Checker>
               {t.players[p]}
             </button>
           ))}
@@ -66,11 +71,12 @@ export function WinnerSheet({ open, presetWinner, timedOutNote, pending, error, 
               onClick={() => onSave(winner, w)}
               className="flex w-full items-center justify-between gap-3 rounded-[var(--radius-md)] border border-[var(--color-border-strong)] bg-[var(--color-surface)] px-4 py-3 text-start hover:border-[var(--color-brand)] disabled:opacity-60"
             >
-              <span>
+              <Die face={WIN_POINTS[w] as 1 | 2 | 3} size={36} />
+              <span className="flex-1">
                 <span className="block text-base font-semibold">{t.winTypes[w]}</span>
                 <span className="block text-xs text-[var(--color-ink-muted)]">{t.winHints[w]}</span>
               </span>
-              <span className="rounded-full bg-[var(--color-accent)] px-3 py-1 text-sm font-bold text-[var(--color-ink)]">
+              <span className="rounded-full bg-[var(--color-accent)] px-3 py-1 text-sm font-bold text-[var(--color-ink)] ring-1 ring-[var(--color-accent-muted)]">
                 {WIN_POINTS[w]} {t.common.pts}
               </span>
             </button>

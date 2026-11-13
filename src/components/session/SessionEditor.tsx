@@ -1,5 +1,7 @@
 "use client";
 
+import { useFx } from "@/components/motion/FxProvider";
+import { playerTone } from "@/lib/player-style";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
@@ -38,6 +40,7 @@ type Props = {
 export function SessionEditor(props: Props) {
   const router = useRouter();
   const { t } = useI18n();
+  const fx = useFx();
   const [pending, startTransition] = useTransition();
   const [playedAt, setPlayedAt] = useState(props.playedAt);
   const [notes, setNotes] = useState(props.notes);
@@ -95,6 +98,7 @@ export function SessionEditor(props: Props) {
           timedOut: false,
         },
       ]);
+      fx({ kind: "save", winner, winType: "normal" });
       report(true, t.editor.gameAdded);
     });
 
@@ -164,7 +168,7 @@ export function SessionEditor(props: Props) {
               type="button"
               disabled={pending}
               onClick={() => add(p)}
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-[var(--radius-md)] border border-[var(--color-border-strong)] font-semibold hover:border-[var(--color-brand)] disabled:opacity-60"
+              className={`inline-flex h-12 items-center justify-center gap-2 rounded-[var(--radius-md)] font-semibold shadow-[var(--shadow-soft)] disabled:opacity-60 ${playerTone(p)}`}
             >
               <PlusIcon width={18} height={18} />
               {t.builder.won(t.players[p])}
@@ -188,7 +192,7 @@ export function SessionEditor(props: Props) {
             <button
               type="button"
               disabled={pending}
-              onClick={() => run(async () => { const r = await finishSession(props.sessionId); if (r.ok) setFinished(true); return r; })}
+              onClick={() => run(async () => { const r = await finishSession(props.sessionId); if (r.ok) { setFinished(true); if (summary.leader) fx({ kind: "cube", winner: summary.leader, rain: false, big: false }); } return r; })}
               className="h-11 rounded-[var(--radius-md)] border border-[var(--color-border-strong)] px-4 font-semibold"
             >
               {t.editor.finish}

@@ -29,11 +29,11 @@ export default async function SessionPage({
       <Link href="/history" className="text-sm font-medium text-[var(--color-brand)]">
         {t.history.back}
       </Link>
-      <h1 className="mt-2 text-2xl font-semibold sm:text-3xl">
+      <h1 className="mt-2 font-display text-3xl font-bold sm:text-4xl">
         {format(session.playedAt, "EEEE d MMM yyyy", { locale: dateFnsLocale(locale) })}
       </h1>
       {!session.finishedAt ? (
-        <p className="mt-1 text-sm text-[var(--color-warning)]">{t.history.openSession}</p>
+        <p className="mt-1 text-sm text-[var(--color-brand)]">{t.history.openSession}</p>
       ) : null}
       <div className="mt-6">
         <SessionEditor

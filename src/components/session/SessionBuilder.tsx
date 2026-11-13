@@ -1,5 +1,8 @@
 "use client";
 
+import { useFx } from "@/components/motion/FxProvider";
+import { Die } from "@/components/board/Die";
+import { playerTone } from "@/lib/player-style";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
 
@@ -16,6 +19,7 @@ const field =
 export function SessionBuilder() {
   const router = useRouter();
   const { t } = useI18n();
+  const fx = useFx();
   const [pending, startTransition] = useTransition();
   const [playedAt, setPlayedAt] = useState(() => new Date().toISOString().slice(0, 10));
   const [notes, setNotes] = useState("");
@@ -39,6 +43,7 @@ export function SessionBuilder() {
         setError(res.message);
         return;
       }
+      if (summary.leader) fx({ kind: "cube", winner: summary.leader, rain: false, big: false });
       router.push(`/history/${res.data.id}`);
     });
   };
@@ -60,7 +65,7 @@ export function SessionBuilder() {
               key={p}
               type="button"
               onClick={() => add(p)}
-              className="inline-flex h-14 items-center justify-center gap-2 rounded-[var(--radius-md)] border border-[var(--color-border-strong)] bg-[var(--color-canvas)] text-base font-semibold hover:border-[var(--color-brand)]"
+              className={`inline-flex h-14 items-center justify-center gap-2 rounded-[var(--radius-md)] text-base font-semibold shadow-[var(--shadow-soft)] transition active:scale-[0.97] ${playerTone(p)}`}
             >
               <PlusIcon width={20} height={20} />
               {t.builder.won(t.players[p])}
@@ -82,9 +87,13 @@ export function SessionBuilder() {
           ))}
         </ul>
       ) : (
-        <p className="rounded-[var(--radius-sm)] bg-[var(--color-canvas)] px-3 py-4 text-center text-sm text-[var(--color-ink-muted)]">
+        <div className="flex flex-col items-center gap-3 rounded-[var(--radius-sm)] bg-[var(--color-border)]/40 px-3 py-5 text-center text-sm text-[var(--color-ink-muted)]">
+          <span className="flex gap-2" aria-hidden>
+            <Die face={6} size={34} />
+            <Die face={5} size={34} />
+          </span>
           {t.builder.empty}
-        </p>
+        </div>
       )}
 
       <ScoreBoard niv={summary.niv} gilad={summary.gilad} />

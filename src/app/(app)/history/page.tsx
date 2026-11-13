@@ -1,6 +1,8 @@
 import { format } from "date-fns";
 import Link from "next/link";
 
+import { Checker } from "@/components/board/Checker";
+import { PlayerMark } from "@/components/board/PlayerMark";
 import { GameBadge } from "@/components/ui/GameBadge";
 import { DatabaseSetupNotice } from "@/components/shell/DatabaseSetupNotice";
 import { loadCompetitionContext } from "@/lib/competition-context/load";
@@ -22,7 +24,7 @@ export default async function HistoryPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-6 sm:py-10">
-      <h1 className="text-2xl font-semibold text-[var(--color-ink)] sm:text-3xl">
+      <h1 className="font-display text-3xl font-bold text-[var(--color-ink)] sm:text-4xl">
         {t.history.title}
       </h1>
       <p className="mt-2 text-[var(--color-ink-muted)]">
@@ -44,21 +46,22 @@ export default async function HistoryPage() {
                   <time className="text-sm font-medium" dateTime={s.playedAt.toISOString()}>
                     {format(s.playedAt, "EEEE d MMM yyyy", { locale: dateFnsLocale(locale) })}
                   </time>
-                  <span className="text-sm text-[var(--color-brand)]">
+                  <span className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--color-ink)]">
                     {!s.finishedAt ? t.history.openPrefix : ""}
+                    {leader ? <Checker player={leader} size={16} aria-hidden /> : null}
                     {leader ? t.common.leads(t.players[leader]) : t.common.tie}
                   </span>
                 </div>
                 <div className="mt-3 grid grid-cols-2 gap-3 text-center tabular-nums" dir="ltr">
                   <div>
-                    <p className="text-xs text-[var(--color-ink-muted)]">{t.players.niv}</p>
+                    <PlayerMark player="niv" label={t.players.niv} size={14} className="text-xs text-[var(--color-ink-muted)]" />
                     <p className="font-mono text-2xl font-semibold">
                       {n.points}
                       <span className="text-xs font-normal text-[var(--color-ink-muted)]"> {t.common.pts} · {n.games} {t.common.gamesShort}</span>
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-[var(--color-ink-muted)]">{t.players.gilad}</p>
+                    <PlayerMark player="gilad" label={t.players.gilad} size={14} className="text-xs text-[var(--color-ink-muted)]" />
                     <p className="font-mono text-2xl font-semibold">
                       {g.points}
                       <span className="text-xs font-normal text-[var(--color-ink-muted)]"> {t.common.pts} · {g.games} {t.common.gamesShort}</span>

@@ -13,7 +13,8 @@ export function MobileNav({ items }: { items: NavItem[] }) {
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-[var(--color-border)] bg-[var(--color-surface-raised)]/98 px-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-sm sm:hidden"
+      data-shake
+      className="fixed inset-x-0 bottom-0 z-40 wood border-t border-[var(--color-gold)]/70 px-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-1.5 shadow-[0_-4px_12px_rgb(0_0_0/0.35)] sm:hidden"
       aria-label={t.nav.label}
     >
       <ul className="mx-auto flex max-w-md items-stretch justify-between gap-1">
@@ -28,19 +29,17 @@ export function MobileNav({ items }: { items: NavItem[] }) {
                 href={item.href}
                 className={`flex min-h-[44px] flex-col items-center justify-center rounded-lg px-1 py-1 text-[0.7rem] font-medium leading-tight transition ${
                   active
-                    ? "text-[var(--color-brand)]"
-                    : "text-[var(--color-ink-muted)]"
+                    ? "text-[var(--color-gold)]"
+                    : "text-[var(--color-cream-muted)]"
                 }`}
               >
                 <span className="text-center">{item.label}</span>
-                {active ? (
-                  <span
-                    className="mt-1 h-0.5 w-8 rounded-full bg-[var(--color-brand)]"
-                    aria-hidden
-                  />
-                ) : (
-                  <span className="mt-1 h-0.5 w-8" aria-hidden />
-                )}
+                <span
+                  className={`mt-1 h-0 w-0 border-x-[7px] border-b-[7px] border-x-transparent ${
+                    active ? "border-b-[var(--color-gold)]" : "border-b-transparent"
+                  }`}
+                  aria-hidden
+                />
               </Link>
             </li>
           );

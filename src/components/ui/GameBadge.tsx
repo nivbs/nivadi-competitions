@@ -1,30 +1,27 @@
 "use client";
 
-import { CrownIcon } from "@/components/ui/icons";
+import { Checker } from "@/components/board/Checker";
 import { useI18n } from "@/lib/i18n/client";
-import type { PlayerSlug, WinType } from "@/lib/scoring";
+import { WIN_POINTS, type PlayerSlug, type WinType } from "@/lib/scoring";
 
-/** One game as a chip: winner initial, with M (Mars) / B (backgammon) marker. */
+/**
+ * One game as a chip: the winner's checkers (1 normal, 2 gammon, 3 backgammon),
+ * stacked in the winner's color (Niv dark, Gilad light).
+ */
 export function GameBadge({ winner, winType }: { winner: PlayerSlug; winType: WinType }) {
   const { t } = useI18n();
-  const mark = winType === "mars" ? "M" : winType === "backgammon" ? "B" : null;
-  const tone =
-    winner === "niv"
-      ? "bg-[var(--color-brand)] text-white"
-      : "bg-[var(--color-inlay-dark)] text-white";
+  const count = WIN_POINTS[winType];
   return (
     <span
-      className={`inline-flex h-8 items-center gap-1 rounded-full px-2.5 text-xs font-semibold ${tone}`}
-      title={`${t.players[winner]}${mark ? ` · ${t.winTypes[winType]}` : ""}`}
+      className="inline-flex h-9 items-center gap-2 rounded-full border border-[var(--color-border-strong)] bg-[var(--color-surface-raised)] ps-2 pe-3 text-xs font-semibold text-[var(--color-ink)]"
+      title={`${t.players[winner]}${winType !== "normal" ? ` · ${t.winTypes[winType]}` : ""}`}
     >
+      <span className="flex items-center" dir="ltr" aria-hidden>
+        {Array.from({ length: count }, (_, i) => (
+          <Checker key={i} player={winner} size={20} className={i > 0 ? "-ms-2.5" : ""} />
+        ))}
+      </span>
       {t.players[winner]}
-      {mark ? (
-        <span className="rounded-full bg-[var(--color-accent)] px-1.5 text-[0.65rem] text-[var(--color-ink)]">
-          {mark}
-        </span>
-      ) : (
-        <CrownIcon width={12} height={12} className="opacity-70" />
-      )}
     </span>
   );
 }

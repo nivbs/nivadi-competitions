@@ -1,9 +1,16 @@
 "use client";
 
+import { useFx } from "@/components/motion/FxProvider";
+import { PanicPile } from "@/components/motion/PanicPile";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 
+import { GoldCrown } from "@/components/board/GoldCrown";
+import { ClockPoints } from "@/components/board/ClockPoints";
+import { PointsRow } from "@/components/board/PointsRow";
+import { PlayerMark } from "@/components/board/PlayerMark";
+import { playerFill } from "@/lib/player-style";
 import { addGame, deleteGame } from "@/actions/game";
 import { finishSession } from "@/actions/session";
 import { ClockSettingsSheet } from "@/components/timer/ClockSettingsSheet";
@@ -12,7 +19,7 @@ import { WinnerSheet } from "@/components/timer/WinnerSheet";
 import { BottomSheet } from "@/components/ui/BottomSheet";
 import { useI18n } from "@/lib/i18n/client";
 import { IconButton } from "@/components/ui/IconButton";
-import { CrownIcon, FlagIcon, PauseIcon, PlayIcon, SettingsIcon, UndoIcon } from "@/components/ui/icons";
+import { FlagIcon, PauseIcon, PlayIcon, SettingsIcon, UndoIcon } from "@/components/ui/icons";
 import {
   adjustBank,
   applySettings,
@@ -61,6 +68,7 @@ function readStorage(): Persisted | null {
 export function TimerClient({ resume: resumeSession }: { resume: ResumeSession | null }) {
   const router = useRouter();
   const { t } = useI18n();
+  const fx = useFx();
   const [pending, startTransition] = useTransition();
 
   const [clock, setClock] = useState<ClockState>(() => createClock(DEFAULT_SETTINGS));
@@ -125,10 +133,11 @@ export function TimerClient({ resume: resumeSession }: { resume: ResumeSession |
     if (flagged) {
       beep();
       buzz([200, 100, 200]);
+      fx({ kind: "flag", loser: flagged });
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setWinnerOpen(true);
     }
-  }, [flagged]);
+  }, [flagged, fx]);
 
   const summary = useMemo(() => summarizeGames(scored), [scored]);
 
@@ -137,6 +146,7 @@ export function TimerClient({ resume: resumeSession }: { resume: ResumeSession |
   const onHalfTap = (p: PlayerSlug) => {
     if (clock.status === "idle") {
       buzz(20);
+      fx({ kind: "rattle" });
       commit((c, t) => start(c, p, t));
     } else if (clock.status === "running") {
       buzz(20);
@@ -177,6 +187,10 @@ export function TimerClient({ resume: resumeSession }: { resume: ResumeSession |
       setSessionId(res.data.sessionId);
       setScored((s) => [...s, { id: res.data.gameId, winner, winType }]);
       closeWinner();
+      fx({ kind: "save", winner, winType });
+      if (winType !== "normal") {
+        window.setTimeout(() => fx({ kind: "cube", winner, rain: winType === "backgammon", big: true }), 1900);
+      }
       setSavedOpen(true);
     });
   };
@@ -188,6 +202,7 @@ export function TimerClient({ resume: resumeSession }: { resume: ResumeSession |
 
   const finish = () => {
     const id = sessionId;
+    if (summary.leader) fx({ kind: "cube", winner: summary.leader, rain: false, big: false });
     startTransition(async () => {
       if (id) {
         const res = await finishSession(id);
@@ -218,16 +233,17 @@ export function TimerClient({ resume: resumeSession }: { resume: ResumeSession |
   const flaggedLoser = clock.flagged;
   const presetWinner = flaggedLoser ? opponentOf(flaggedLoser) : null;
 
-  // Fixed colours per player: an exact inverse pair (ink on surface / surface on ink).
+  // Player-color law: Niv always dark, Gilad always light (see lib/player-style).
   const PLAYER_TONE: Record<PlayerSlug, string> = {
-    niv: "bg-[var(--color-ink)] text-[var(--color-surface)]",
-    gilad: "bg-[var(--color-surface)] text-[var(--color-ink)]",
+    niv: playerFill("niv"),
+    gilad: playerFill("gilad"),
   };
 
   const renderHalf = (p: PlayerSlug, flip?: boolean) => {
     const live = shown.status === "running";
     const isActive = shown.active === p && (live || shown.status === "paused");
     const isFlagged = shown.flagged === p;
+    const panic = isActive && live && shown.bankMs[p] > 0 && shown.bankMs[p] <= 10000;
     const inDelay = isActive && live && shown.delayLeftMs > 0;
     const ring = isFlagged
       ? "ring-8 ring-inset ring-[var(--color-danger)]"
@@ -251,17 +267,20 @@ export function TimerClient({ resume: resumeSession }: { resume: ResumeSession |
         type="button"
         onClick={() => onHalfTap(p)}
         aria-label={t.timer.clockOf(t.players[p])}
-        className={`flex flex-1 select-none flex-col items-center justify-center gap-1 transition ${PLAYER_TONE[p]} ${ring} ${dim} ${flip ? "rotate-180" : ""}`}
+        style={{ "--outline-c": p === "niv" ? "var(--color-walnut-deep)" : "var(--player-gilad-fill)" } as React.CSSProperties}
+        className={`relative flex flex-1 select-none flex-col items-center justify-center gap-1 overflow-hidden transition ${PLAYER_TONE[p]} ${ring} ${dim} ${flip ? "rotate-180" : ""}`}
       >
-        <span className="text-sm font-medium opacity-80">
+        <ClockPoints player={p} />
+        <span className="text-outlined relative text-sm font-semibold">
           {t.players[p]} · {t.timer.points(mine.points, mine.games)}
         </span>
-        <span className="font-mono text-7xl font-semibold tabular-nums" dir="ltr">
+        <span data-clock className="text-outlined relative font-mono text-7xl font-semibold tabular-nums [--outline-w:9px]" dir="ltr">
           {formatMs(shown.bankMs[p])}
         </span>
-        <span className="h-6 text-sm font-medium tabular-nums opacity-90" dir="ltr">
+        <span className="text-outlined relative h-6 text-sm font-semibold tabular-nums" dir="ltr">
           {hint}
         </span>
+        {panic ? <PanicPile player={p} /> : null}
       </button>
     );
   };
@@ -272,39 +291,63 @@ export function TimerClient({ resume: resumeSession }: { resume: ResumeSession |
       onClick={() => openWinner(p)}
       aria-label={t.timer.winnerOf(t.players[p])}
       title={t.timer.winnerOf(t.players[p])}
-      className={`inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 border-[var(--color-accent)] bg-[var(--color-accent)]/15 text-[var(--color-accent-muted)] transition active:scale-90 ${flip ? "rotate-180" : ""}`}
+      className={`inline-flex h-[3.75rem] w-[3.75rem] shrink-0 items-center justify-center rounded-full transition ${flip ? "rotate-180" : ""}`}
     >
-      <CrownIcon width={26} height={26} />
+      <span
+        className="flex h-[3.75rem] w-[3.75rem] items-center justify-center rounded-full p-[5px]"
+        style={{
+          background: "conic-gradient(from 200deg, #fff0b0, #d4a017, #8f650e, #f4c64a, #fff0b0)",
+          boxShadow: "var(--shadow-checker), 0 0 10px rgb(244 198 74 / 0.45)",
+        }}
+      >
+        <span
+          className="flex h-full w-full items-center justify-center rounded-full"
+          style={{
+            background:
+              p === "niv"
+                ? "radial-gradient(circle at 35% 28%, #6a4128 0%, var(--player-niv-fill) 55%, #1c0e07 100%)"
+                : "radial-gradient(circle at 35% 28%, #ffffff 0%, var(--player-gilad-fill) 55%, #cdbf9f 100%)",
+            boxShadow: "inset 0 2px 4px rgb(0 0 0 / 0.35)",
+          }}
+        >
+          <GoldCrown size={30} />
+        </span>
+      </span>
     </button>
   );
 
   return (
     <>
-      <div className="fixed inset-x-0 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] top-[3.75rem] z-20 flex flex-col overflow-hidden bg-[var(--color-canvas)] sm:hidden">
+      <div className="fixed inset-x-0 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] top-[3.75rem] z-20 flex flex-col overflow-hidden bg-[var(--color-walnut-deep)] sm:hidden">
         {renderHalf("gilad", true)}
-        <div dir="ltr" className="flex items-center justify-between gap-2 border-y border-[var(--color-border)] bg-[var(--color-surface-raised)] px-3 py-2">
-          {crownBtn("gilad", true)}
-          <div className="flex items-center">
-            <IconButton label={t.timer.settings} onClick={() => setSettingsOpen(true)}>
+        <div dir="ltr" className="relative flex items-center justify-between gap-2 border-y-2 border-[var(--color-gold)] px-4 py-3">
+          <span aria-hidden className="absolute inset-x-0 top-0 h-1/2 bg-[var(--player-niv-fill)]" />
+          <span aria-hidden className="absolute inset-x-0 bottom-0 h-1/2 bg-[var(--player-gilad-fill)]" />
+          <span aria-hidden className="absolute inset-x-0 top-1/2 -translate-y-1/2">
+            <PointsRow height={8} />
+          </span>
+          <span className="relative">{crownBtn("gilad", true)}</span>
+          <div className="wood relative flex items-center rounded-full border-2 border-[var(--color-gold)] px-1 shadow-[var(--shadow-die)]">
+            <IconButton tone="onDark" label={t.timer.settings} onClick={() => setSettingsOpen(true)}>
               <SettingsIcon />
             </IconButton>
-            <IconButton label={t.timer.undo} disabled={scored.length === 0 || pending} onClick={undoLast}>
+            <IconButton tone="onDark" label={t.timer.undo} disabled={scored.length === 0 || pending} onClick={undoLast}>
               <UndoIcon />
             </IconButton>
             {clock.status === "paused" ? (
-              <IconButton label={t.timer.resume} onClick={() => commit(resume)}>
+              <IconButton tone="onDark" label={t.timer.resume} onClick={() => commit(resume)}>
                 <PlayIcon />
               </IconButton>
             ) : (
-              <IconButton label={t.timer.pause} disabled={clock.status !== "running"} onClick={() => commit(pause)}>
+              <IconButton tone="onDark" label={t.timer.pause} disabled={clock.status !== "running"} onClick={() => commit(pause)}>
                 <PauseIcon />
               </IconButton>
             )}
-            <IconButton label={t.timer.finish} disabled={scored.length === 0} onClick={() => setSavedOpen(true)}>
+            <IconButton tone="onDark" label={t.timer.finish} disabled={scored.length === 0} onClick={() => setSavedOpen(true)}>
               <FlagIcon />
             </IconButton>
           </div>
-          {crownBtn("niv")}
+          <span className="relative">{crownBtn("niv")}</span>
         </div>
         {renderHalf("niv")}
 
@@ -329,8 +372,10 @@ export function TimerClient({ resume: resumeSession }: { resume: ResumeSession |
       />
 
       <BottomSheet open={savedOpen} title={scored.length ? t.timer.savedGame(scored.length) : t.timer.finish} onClose={() => setSavedOpen(false)}>
-        <p className="text-sm text-[var(--color-ink-muted)]" dir="ltr">
-          {t.players.niv} {summary.niv.points} ({summary.niv.games}) – {summary.gilad.points} ({summary.gilad.games}) {t.players.gilad}
+        <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-[var(--color-ink-muted)]" dir="ltr">
+          <PlayerMark player="niv" label={`${t.players.niv} ${summary.niv.points} (${summary.niv.games})`} />
+          <span aria-hidden>–</span>
+          <PlayerMark player="gilad" label={`${summary.gilad.points} (${summary.gilad.games}) ${t.players.gilad}`} />
         </p>
         <div className="mt-5 grid gap-3">
           <button type="button" onClick={nextGame} className="h-12 rounded-[var(--radius-md)] bg-[var(--color-brand)] font-semibold text-white">
