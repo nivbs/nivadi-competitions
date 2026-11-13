@@ -1,4 +1,5 @@
 import {
+  boolean,
   index,
   integer,
   pgEnum,
@@ -30,28 +31,56 @@ export const competitions = pgTable("competitions", {
   status: competitionStatusEnum("status").notNull().default("active"),
 });
 
-export const matches = pgTable(
-  "matches",
+export const winTypeEnum = pgEnum("win_type", [
+  "normal",
+  "mars",
+  "backgammon",
+]);
+
+/** A sitting: several games played in a row. Score is derived from games. */
+export const sessions = pgTable(
+  "sessions",
   {
     id: uuid("id").defaultRandom().primaryKey(),
     competitionId: uuid("competition_id")
       .notNull()
       .references(() => competitions.id, { onDelete: "cascade" }),
     playedAt: timestamp("played_at", { withTimezone: true }).notNull(),
-    nivScore: integer("niv_score").notNull(),
-    giladScore: integer("gilad_score").notNull(),
-    winnerPlayerId: uuid("winner_player_id").references(() => players.id),
-    nivTimeUsedSec: integer("niv_time_used_sec").notNull(),
-    giladTimeUsedSec: integer("gilad_time_used_sec").notNull(),
     notes: text("notes"),
+    /** Null while a timer session is still open. */
+    finishedAt: timestamp("finished_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
   },
-  (t) => ({
-    competitionPlayedIdx: index("matches_competition_played_idx").on(
-      t.competitionId,
-      t.playedAt,
-    ),
-  }),
+  (t) => [
+    index("sessions_competition_played_idx").on(t.competitionId, t.playedAt),
+  ],
+);
+
+export const games = pgTable(
+  "games",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    sessionId: uuid("session_id")
+      .notNull()
+      .references(() => sessions.id, { onDelete: "cascade" }),
+    position: integer("position").notNull(),
+    winnerPlayerId: uuid("winner_player_id")
+      .notNull()
+      .references(() => players.id),
+    winType: winTypeEnum("win_type").notNull().default("normal"),
+    nivTimeUsedSec: integer("niv_time_used_sec"),
+    giladTimeUsedSec: integer("gilad_time_used_sec"),
+    bankSec: integer("bank_sec"),
+    delaySec: integer("delay_sec"),
+    timedOut: boolean("timed_out").notNull().default(false),
+    endedAt: timestamp("ended_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [index("games_session_position_idx").on(t.sessionId, t.position)],
 );

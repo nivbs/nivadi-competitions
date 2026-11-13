@@ -15,6 +15,13 @@
       "when": 1794045526645,
       "tag": "0001_colorful_ravenous",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794556986094,
+      "tag": "0002_sessions_and_games",
+      "breakpoints": true
     }
   ]
 }
