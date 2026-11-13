@@ -1,24 +1,25 @@
-import { Suspense } from "react";
+import Link from "next/link";
 
-import { LogMatchForm } from "@/components/match/LogMatchForm";
+import { SessionBuilder } from "@/components/session/SessionBuilder";
+import { getDict } from "@/lib/i18n/server";
 
-export default function LogPage() {
+export default async function LogPage() {
+  const { t } = await getDict();
   return (
     <div className="mx-auto max-w-3xl px-4 py-6 sm:py-10">
       <h1 className="text-2xl font-semibold text-[var(--color-ink)] sm:text-3xl">
-        רישום משחק
+        {t.nav.log}
       </h1>
       <p className="mt-2 max-w-prose text-[var(--color-ink-muted)]">
-        שמרו את תוצאת השש בש, כולל כמה מהזמן נוצל מכל צד בשעון ה-6 דקות.
+        {t.log.intro1}{" "}
+        <Link href="/timer" className="font-medium text-[var(--color-brand)] underline sm:hidden">
+          {t.log.introLink}
+        </Link>
+        <span className="hidden sm:inline">{t.log.introLink}</span>{" "}
+        {t.log.intro2}
       </p>
       <div className="mt-8">
-        <Suspense
-          fallback={
-            <div className="h-96 animate-pulse rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)]" />
-          }
-        >
-          <LogMatchForm />
-        </Suspense>
+        <SessionBuilder />
       </div>
     </div>
   );

@@ -1,97 +1,104 @@
-import { analyzeMatches, formatClock } from "@/lib/analysis";
 import { DatabaseSetupNotice } from "@/components/shell/DatabaseSetupNotice";
+import { VersusCard } from "@/components/session/VersusCard";
+import { analyzeSessions } from "@/lib/analysis";
 import { loadCompetitionContext } from "@/lib/competition-context/load";
-import { listMatchesForCompetition } from "@/lib/queries";
+import { formatClock } from "@/lib/format";
+import { listSessionsForCompetition } from "@/lib/queries";
+import { getDict } from "@/lib/i18n/server";
+
+const card =
+  "rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-soft)]";
+const pct = (v: number | null) => (v === null ? "—" : `${Math.round(v * 100)}%`);
 
 export default async function AnalysisPage() {
+  const { t } = await getDict();
   const ctx = await loadCompetitionContext();
   if (!ctx.ready) {
     return <DatabaseSetupNotice reason={ctx.reason} />;
   }
 
   const { competition, niv, gilad } = ctx;
-  const matchRows = await listMatchesForCompetition(competition.id);
-  const a = analyzeMatches(matchRows, {
-    nivPlayerId: niv.id,
-    giladPlayerId: gilad.id,
-  });
+  const sessions = await listSessionsForCompetition(competition.id, { niv: niv.id, gilad: gilad.id });
+  const a = analyzeSessions(sessions);
 
-  const streakText =
-    a.currentStreakOwner && a.currentStreakLength > 0
-      ? a.currentStreakOwner === "niv"
-        ? `רצף נוכחי: ניב ${a.currentStreakLength} משחקים`
-        : `רצף נוכחי: גלעד ${a.currentStreakLength} משחקים`
-      : "אין רצף ניצחונות פעיל (או תיקו אחרון).";
+  const gap = Math.abs(a.niv.points - a.gilad.points);
+  const lead =
+    gap === 0
+      ? t.analysis.tied
+      : t.analysis.leadsBy(a.niv.points > a.gilad.points ? t.players.niv : t.players.gilad, gap);
 
-  const paceText =
-    a.matchesPerWeek !== null
-      ? `קצב: כ-${a.matchesPerWeek.toFixed(1)} משחקים בשבוע (לפי טווח התאריכים).`
-      : "קצב: צריך לפחות שני משחקים עם תאריכים שונים.";
-
-  const timeAdv =
-    a.averageTimeRemainingAdvantageSec !== null
-      ? a.averageTimeRemainingAdvantageSec > 0
-        ? `בממוצע ניב משאיר ${formatClock(Math.abs(Math.round(a.averageTimeRemainingAdvantageSec)))} יותר על השעון מגלעד (פחות זמן שנוצל).`
-        : a.averageTimeRemainingAdvantageSec < 0
-          ? `בממוצע גלעד משאיר ${formatClock(Math.abs(Math.round(a.averageTimeRemainingAdvantageSec)))} יותר על השעון מניב.`
-          : "בממוצע שני הצדדים מסיימים עם אותו לחץ זמן יחסי."
-      : "אין עדיין נתוני זמן מספיקים.";
-
-  const burstLine = `שעון מלא (360ש׳): ניב ${a.nivBankBursts} · גלעד ${a.giladBankBursts}`;
+  const streak =
+    a.streak.owner && a.streak.length > 0
+      ? t.analysis.streak(t.players[a.streak.owner], a.streak.length)
+      : t.analysis.noGames;
+  const pace =
+    a.gamesPerWeek !== null ? t.analysis.pace(a.gamesPerWeek) : t.analysis.paceNone;
+  const adv = a.avgTimeAdvantageSec;
+  const timeLine =
+    adv === null
+      ? t.analysis.timeNone
+      : Math.abs(adv) < 1
+        ? t.analysis.timeEqual
+        : t.analysis.timeLess(
+            adv > 0 ? t.players.niv : t.players.gilad,
+            formatClock(Math.abs(Math.round(adv))),
+          );
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-6 sm:py-10">
-      <h1 className="text-2xl font-semibold text-[var(--color-ink)] sm:text-3xl">
-        ניתוח שש בש
-      </h1>
-      <p className="mt-2 max-w-prose text-[var(--color-ink-muted)]">
-        ניתוח סביב טקטיקת זמן ותוצאות — כמו חישובים על לוח הבית: מי מקדים במירוץ אבל נשאר עם יותר זמן לנשימה.
+      <h1 className="text-2xl font-semibold sm:text-3xl">{t.analysis.title}</h1>
+      <p className="mt-2 text-[var(--color-ink-muted)]">
+        {t.home.sessionsGames(a.totalSessions, a.totalGames)}
       </p>
 
-      <div className="mt-8 grid gap-4 sm:grid-cols-2">
-        <div className="rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-soft)]">
-          <p className="text-sm font-medium text-[var(--color-ink-muted)]">
-            סה״כ משחקים
-          </p>
-          <p className="mt-2 font-mono text-4xl font-semibold tabular-nums text-[var(--color-ink)]" dir="ltr">
-            {a.totalMatches}
-          </p>
-        </div>
-        <div className="rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-soft)]">
-          <p className="text-sm font-medium text-[var(--color-ink-muted)]">
-            תיקו
-          </p>
-          <p className="mt-2 font-mono text-4xl font-semibold tabular-nums text-[var(--color-ink)]" dir="ltr">
-            {a.ties}
-          </p>
-        </div>
+      <div className="mt-8">
+        <VersusCard
+          niv={a.niv}
+          gilad={a.gilad}
+          labels={{
+            niv: t.players.niv,
+            gilad: t.players.gilad,
+            vs: t.analysis.vs,
+            pts: t.common.pts,
+            rows: { wins: t.common.games, mars: t.winTypes.mars, backgammon: t.winTypes.backgammon },
+            summary: lead,
+          }}
+        />
       </div>
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
-        <div className="rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-soft)]">
-          <p className="text-sm font-medium text-[var(--color-ink-muted)]">
-            הפרש נקודות ממוצע (נקודות ניב מול גלעד)
-          </p>
-          <p className="mt-2 font-mono text-3xl font-semibold tabular-nums text-[var(--color-ink)]" dir="ltr">
-            {a.averageScoreDiffNiv !== null ? a.averageScoreDiffNiv.toFixed(2) : "—"}
+        <div className={card}>
+          <p className="text-sm font-medium text-[var(--color-ink-muted)]">{t.analysis.gameWinRateNiv}</p>
+          <p className="mt-2 font-mono text-3xl font-semibold tabular-nums" dir="ltr">{pct(a.nivGameWinRate)}</p>
+        </div>
+        <div className={card}>
+          <p className="text-sm font-medium text-[var(--color-ink-muted)]">{t.analysis.sessionWins}</p>
+          <p className="mt-2 font-mono text-3xl font-semibold tabular-nums" dir="ltr">
+            {a.sessionWins.niv} · {a.sessionWins.gilad} · {a.sessionWins.ties}
           </p>
         </div>
-        <div className="rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-soft)]">
-          <p className="text-sm font-medium text-[var(--color-ink-muted)]">
-            ממוצע זמן שנוצל (ניב / גלעד)
+        <div className={card}>
+          <p className="text-sm font-medium text-[var(--color-ink-muted)]">{t.analysis.bigWinShare}</p>
+          <p className="mt-2 text-lg font-medium tabular-nums" dir="ltr">
+            {t.players.niv} {pct(a.nivBigWinShare)} · {t.players.gilad} {pct(a.giladBigWinShare)}
           </p>
-          <p className="mt-2 text-lg font-medium tabular-nums text-[var(--color-ink)]" dir="ltr">
-            {a.nivAvgTimeUsedSec !== null ? formatClock(Math.round(a.nivAvgTimeUsedSec)) : "—"} ·{" "}
-            {a.giladAvgTimeUsedSec !== null ? formatClock(Math.round(a.giladAvgTimeUsedSec)) : "—"}
+        </div>
+        <div className={card}>
+          <p className="text-sm font-medium text-[var(--color-ink-muted)]">{t.analysis.avgTime}</p>
+          <p className="mt-2 text-lg font-medium tabular-nums" dir="ltr">
+            {a.avgTimeUsedSec.niv !== null ? formatClock(a.avgTimeUsedSec.niv) : "—"} ·{" "}
+            {a.avgTimeUsedSec.gilad !== null ? formatClock(a.avgTimeUsedSec.gilad) : "—"}
           </p>
         </div>
       </div>
 
-      <div className="mt-6 space-y-3 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 text-sm leading-relaxed text-[var(--color-ink-muted)] shadow-[var(--shadow-soft)]">
-        <p>{streakText}</p>
-        <p>{paceText}</p>
-        <p>{timeAdv}</p>
-        <p>{burstLine}</p>
+      <div className={`mt-6 space-y-3 text-sm leading-relaxed text-[var(--color-ink-muted)] ${card}`}>
+        <p>{streak}</p>
+        <p>{pace}</p>
+        <p>{timeLine}</p>
+        <p>
+          {t.analysis.timedOut} {t.players.niv} {a.timedOut.niv} · {t.players.gilad} {a.timedOut.gilad}
+        </p>
       </div>
     </div>
   );

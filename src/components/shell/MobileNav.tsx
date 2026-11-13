@@ -3,15 +3,18 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { useI18n } from "@/lib/i18n/client";
+
 export type NavItem = { href: string; label: string };
 
 export function MobileNav({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
+  const { t } = useI18n();
 
   return (
     <nav
       className="fixed inset-x-0 bottom-0 z-40 border-t border-[var(--color-border)] bg-[var(--color-surface-raised)]/98 px-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-sm sm:hidden"
-      aria-label="ניווט ראשי"
+      aria-label={t.nav.label}
     >
       <ul className="mx-auto flex max-w-md items-stretch justify-between gap-1">
         {items.map((item) => {

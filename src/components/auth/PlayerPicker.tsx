@@ -1,12 +1,16 @@
 import { selectPlayerFormAction } from "@/actions/auth";
+import { getDict } from "@/lib/i18n/server";
 import type { PlayerSlug } from "@/lib/session/types";
 
-const players: { slug: PlayerSlug; label: string; hint: string }[] = [
-  { slug: "niv", label: "ניב", hint: "Nivi" },
-  { slug: "gilad", label: "גלעד", hint: "Giladi" },
-];
+const slugs: PlayerSlug[] = ["niv", "gilad"];
 
-export function PlayerPicker() {
+export async function PlayerPicker() {
+  const { t } = await getDict();
+  const players = slugs.map((slug) => ({
+    slug,
+    label: t.players[slug],
+    hint: t.playerHints[slug],
+  }));
   return (
     <div className="grid gap-3">
       {players.map((player) => (

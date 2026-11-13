@@ -6,10 +6,12 @@ import {
   verifySitePasswordAction,
   type PasswordGateState,
 } from "@/actions/auth";
+import { useI18n } from "@/lib/i18n/client";
 
 const initialState: PasswordGateState | undefined = undefined;
 
 export function SitePasswordForm() {
+  const { t } = useI18n();
   const [state, formAction, pending] = useActionState(
     verifySitePasswordAction,
     initialState,
@@ -22,7 +24,7 @@ export function SitePasswordForm() {
           htmlFor="password"
           className="block text-sm font-medium text-[var(--color-ink)]"
         >
-          סיסמת אתר
+          {t.auth.sitePassword}
         </label>
         <input
           id="password"
@@ -44,7 +46,7 @@ export function SitePasswordForm() {
         disabled={pending}
         className="w-full rounded-[var(--radius-sm)] bg-[var(--color-brand)] px-4 py-3 text-base font-semibold text-[var(--color-surface)] transition hover:bg-[var(--color-brand-hover)] disabled:opacity-60"
       >
-        {pending ? "בודק…" : "המשך"}
+        {pending ? t.auth.checking : t.auth.continue}
       </button>
     </form>
   );

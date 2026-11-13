@@ -4,6 +4,8 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { useRef, useSyncExternalStore, type HTMLAttributes } from "react";
 
+import { useI18n } from "@/lib/i18n/client";
+
 gsap.registerPlugin(useGSAP);
 
 const STORAGE_KEY = "nivadi-intro-seen";
@@ -47,6 +49,7 @@ function markIntroSeen() {
 }
 
 export function SheshBeshIntro() {
+  const { t } = useI18n();
   const root = useRef<HTMLDivElement>(null);
   const introSeen = useSyncExternalStore(
     subscribeIntro,
@@ -136,7 +139,7 @@ export function SheshBeshIntro() {
           data-label
           className="text-center font-semibold tracking-wide text-[var(--color-ink)]"
         >
-          שש בש
+          {t.app.game}
         </p>
         <div className="flex items-center gap-4">
           <Die face={6} data-die />
