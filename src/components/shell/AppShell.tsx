@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 
-import { DoublingCube } from "@/components/board/DoublingCube";
+import { StackedDice } from "@/components/board/StackedDice";
 import { PointsRow } from "@/components/board/PointsRow";
 import { LanguageSwitcher } from "@/components/shell/LanguageSwitcher";
 import { MobileNav } from "@/components/shell/MobileNav";
@@ -31,7 +31,7 @@ export async function AppShell({
       <header data-shake className="wood sticky top-0 z-30 h-[3.75rem] border-b border-[var(--color-gold)]/70 text-[var(--color-cream)] shadow-[0_4px_12px_rgb(0_0_0/0.35)]">
         <div className="mx-auto flex h-full max-w-4xl items-center justify-between gap-3 px-4 pb-1.5">
           <Link href="/" aria-label={t.app.name} className="flex min-w-0 items-center gap-2.5">
-            <DoublingCube value={64} size={34} />
+            <StackedDice size={38} />
             <span className="flex min-w-0 flex-col leading-tight">
               <span className="hidden truncate font-display text-xl font-bold min-[440px]:block sm:hidden">{t.app.game}</span>
               <span className="hidden truncate font-display text-lg font-bold sm:block">{t.app.name}</span>
