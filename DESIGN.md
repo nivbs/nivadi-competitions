@@ -94,13 +94,13 @@ Motifs never go behind tables, lists of numbers, or form fields.
 
 ## 5. Typography
 
-- **Display:** Frank Ruhl Libre (Hebrew + Latin serif) via `next/font`, `--font-display`, for page titles and big player names. Calligraphic but sturdy, fits the Middle-Eastern direction and renders Hebrew natively.
-- **Body and UI:** IBM Plex Sans + IBM Plex Sans Hebrew (`--font-sans`).
+- **Display:** Suez One (Hebrew + Latin display serif) via `next/font`, `--font-display`, for page titles and big player names. Editorial and sturdy, fits the Middle-Eastern board direction and renders Hebrew natively.
+- **Body and UI:** Rubik (`--font-sans-rubik` → `--font-sans`), one family for Hebrew and Latin UI copy.
 - **Numbers and clock:** IBM Plex Mono, tabular figures.
 
 | Role | Size | Weight | Notes |
 |------|------|--------|-------|
-| Display | `clamp(1.75rem, 5vw, 2.5rem)` | 700 | Frank Ruhl Libre, page title only |
+| Display | `clamp(1.75rem, 5vw, 2.5rem)` | 400 | Suez One, page title only (single weight) |
 | Title | `1.25rem` | 600 | Sections |
 | Body | `1rem` | 400 | 1.5 line height |
 | Label | `0.875rem` | 500 | Form labels |

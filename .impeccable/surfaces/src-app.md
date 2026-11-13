@@ -18,7 +18,7 @@ Contrast rule: dark walnut chrome with cream text, cream felt with walnut ink. A
 ## Direction contract
 
 THESIS: the whole app is one backgammon board seen from above, a walnut frame around a felt playfield, refusing the category default of a light neutral dashboard with a terracotta button.
-OWN-WORLD: walnut #2f1a0e, felt #f2dfbf, tan and dark points, gold #d4a64a inlay, burnt red-orange #b8431f, ivory and brown checkers with rims, white 3D pip dice (red odd, black even), stitched dashed seams, eight-point star dividers, Frank Ruhl Libre display.
+OWN-WORLD: walnut #2f1a0e, felt #f2dfbf, tan and dark points, gold #d4a64a inlay, burnt red-orange #b8431f, ivory and brown checkers with rims, white 3D pip dice (red odd, black even), stitched dashed seams, eight-point star dividers, Suez One display and Rubik UI.
 STORY: the visitor sees who leads at a glance as two checker stacks, logs a game by picking a checker and a die, and feels a game of shesh-besh is on the table.
 FIRST VIEWPORT: walnut header with the 64 cube logo and a points strip, then a felt panel: display title, a score hero with Niv's brown stack versus Gilad's ivory stack, latest session as checker chips, primary action under the thumb.
 FORM: board-game surface (skeuomorphic accents inside a flat Operate layout), seed: none (pinned) "I want the website to be in style of backgammon board".

@@ -8,7 +8,7 @@ export async function DatabaseSetupNotice({ reason }: DatabaseSetupNoticeProps) 
   return (
     <div className="mx-auto max-w-3xl px-4 py-6 sm:py-10">
       <div className="rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-soft)] sm:p-6">
-        <h1 className="text-xl font-semibold text-[var(--color-ink)] sm:text-2xl">
+        <h1 className="font-display text-xl font-bold text-[var(--color-ink)] sm:text-2xl">
           {content.title}
         </h1>
         <p className="mt-2 max-w-prose text-[var(--color-ink-muted)]">{content.body}</p>

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Frank_Ruhl_Libre, IBM_Plex_Sans, IBM_Plex_Sans_Hebrew, IBM_Plex_Mono } from "next/font/google";
+import { IBM_Plex_Mono, Rubik, Suez_One } from "next/font/google";
 
 import { FxProvider } from "@/components/motion/FxProvider";
 import { I18nProvider } from "@/lib/i18n/client";
@@ -8,17 +8,17 @@ import { getDict } from "@/lib/i18n/server";
 
 import "./globals.css";
 
-const plexSansLatin = IBM_Plex_Sans({
-  variable: "--font-sans-latin",
-  subsets: ["latin"],
+const rubik = Rubik({
+  variable: "--font-sans-rubik",
+  subsets: ["hebrew", "latin"],
   weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
-const plexSansHebrew = IBM_Plex_Sans_Hebrew({
-  variable: "--font-sans-hebrew",
-  subsets: ["hebrew"],
-  weight: ["400", "500", "600", "700"],
+const suezOne = Suez_One({
+  variable: "--font-display",
+  subsets: ["hebrew", "latin"],
+  weight: "400",
   display: "swap",
 });
 
@@ -26,13 +26,6 @@ const plexMono = IBM_Plex_Mono({
   variable: "--font-mono",
   subsets: ["latin"],
   weight: ["400", "600"],
-  display: "swap",
-});
-
-const frankRuhl = Frank_Ruhl_Libre({
-  variable: "--font-display",
-  subsets: ["hebrew", "latin"],
-  weight: ["500", "700", "900"],
   display: "swap",
 });
 
@@ -56,7 +49,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html
       lang={locale}
       dir={dirFor(locale)}
-      className={`${plexSansLatin.variable} ${plexSansHebrew.variable} ${plexMono.variable} ${frankRuhl.variable} h-full`}
+      className={`${rubik.variable} ${suezOne.variable} ${plexMono.variable} h-full`}
     >
       <body className="min-h-full bg-[var(--color-walnut-deep)] font-sans text-[var(--color-ink)] antialiased">
         <I18nProvider locale={locale}>

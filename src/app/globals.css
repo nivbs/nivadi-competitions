@@ -69,10 +69,10 @@
 @theme inline {
   --color-background: var(--color-canvas);
   --color-foreground: var(--color-ink);
-  --font-sans: var(--font-sans-hebrew), var(--font-sans-latin), "Segoe UI Hebrew",
-    "Noto Sans Hebrew", system-ui, sans-serif;
+  --font-sans: var(--font-sans-rubik), "Rubik", "Segoe UI Hebrew", "Noto Sans Hebrew",
+    system-ui, sans-serif;
   --font-mono: var(--font-mono), ui-monospace, monospace;
-  --font-display: var(--font-display), "Frank Ruhl Libre", "David", Georgia, serif;
+  --font-display: var(--font-display), "Suez One", "David", Georgia, serif;
 }
 
 * {
