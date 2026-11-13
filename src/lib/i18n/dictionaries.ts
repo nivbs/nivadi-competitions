@@ -6,6 +6,7 @@ const he = {
     description: "רישום תוצאות שש בש, שעון 6 דקות לכל שחקן וניתוח לאורך זמן.",
   },
   app: { name: "ניב מול גלעד", game: "שש בש", competitionTitle: "שש בש" },
+  fx: { bonk: "בונק!", quip: "שש בש, יאללה!" },
   lang: { label: "שפה", he: "עברית", en: "English" },
   nav: {
     label: "ניווט ראשי",
@@ -207,6 +208,7 @@ const en: Dict = {
     description: "Log backgammon results, a 6-minute clock per player, and analysis over time.",
   },
   app: { name: "Niv vs Gilad", game: "Backgammon", competitionTitle: "Backgammon" },
+  fx: { bonk: "BONK!", quip: "Shesh-besh, let's roll!" },
   lang: { label: "Language", he: "עברית", en: "English" },
   nav: {
     label: "Main navigation",
