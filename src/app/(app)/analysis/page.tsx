@@ -56,7 +56,6 @@ export default async function AnalysisPage() {
         gameWinRateNiv: t.analysis.gameWinRateNiv,
         sessionWins: t.analysis.sessionWins,
         bigWinShare: t.analysis.bigWinShare,
-        avgTime: t.analysis.avgTime,
         timedOut: t.analysis.timedOut,
       }}
       footnotes={{

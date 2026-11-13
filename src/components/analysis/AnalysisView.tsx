@@ -3,14 +3,14 @@
 import { useRef } from "react";
 
 import { useAnalysisMotion } from "@/components/analysis/useAnalysisMotion";
+import { PaceBoard } from "@/components/analysis/PaceBoard";
 import { Checker } from "@/components/board/Checker";
 import { PlayerMark } from "@/components/board/PlayerMark";
 import { VersusCard, type VersusLabels } from "@/components/session/VersusCard";
 import type { Analysis } from "@/lib/analysis";
-import { formatClock } from "@/lib/format";
 
 const card =
-  "rounded-[var(--radius-md)] border border-[var(--color-border-strong)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-soft)] touch-manipulation";
+  "rounded-[var(--radius-md)] border border-[var(--color-border-strong)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-soft)] touch-manipulation max-sm:text-center sm:text-start";
 
 const pct = (v: number | null) => (v === null ? "—" : `${Math.round(v * 100)}%`);
 
@@ -23,7 +23,6 @@ export type AnalysisViewProps = {
     gameWinRateNiv: string;
     sessionWins: string;
     bigWinShare: string;
-    avgTime: string;
     timedOut: string;
   };
   footnotes: {
@@ -44,7 +43,7 @@ export function AnalysisView({ analysis: a, title, sessionsGamesLabel, versusLab
   const giladBigPct = a.giladBigWinShare === null ? null : Math.round(a.giladBigWinShare * 100);
 
   return (
-    <div ref={rootRef} className="mx-auto max-w-3xl px-4 py-6 sm:py-10">
+    <div ref={rootRef} className="mx-auto max-w-3xl px-4 py-6 text-center sm:py-10 sm:text-start">
       <h1 data-analysis-title className="font-display text-3xl font-bold sm:text-4xl">
         {title}
       </h1>
@@ -52,18 +51,23 @@ export function AnalysisView({ analysis: a, title, sessionsGamesLabel, versusLab
         {sessionsGamesLabel}
       </p>
 
-      <div className="mt-8">
+      <div className="mt-8 max-sm:mx-auto max-sm:max-w-md">
         <VersusCard niv={a.niv} gilad={a.gilad} labels={versusLabels} />
       </div>
 
-      <div className="mt-4 grid gap-4 sm:grid-cols-2">
-        <div data-analysis-stat data-tap-player="niv" className={card} role="group">
+      <div className="mt-4 grid gap-4 max-sm:mx-auto max-sm:max-w-md sm:grid-cols-2">
+        <div
+          data-analysis-stat
+          data-tap-player="niv"
+          className={`${card} max-sm:border-[var(--color-gold)]/45 max-sm:bg-[var(--color-surface-raised)] max-sm:py-6`}
+          role="group"
+        >
           <p className="text-sm font-medium text-[var(--color-ink-muted)]">{statLabels.gameWinRateNiv}</p>
           <p
             data-analysis-stat-value
             data-stat-kind="percent"
             data-value={winRatePct ?? ""}
-            className="mt-2 font-mono text-3xl font-semibold tabular-nums"
+            className="mt-2 font-mono text-4xl font-semibold tabular-nums text-[var(--color-accent-muted)] sm:text-3xl"
             dir="ltr"
           >
             {pct(a.nivGameWinRate)}
@@ -71,7 +75,10 @@ export function AnalysisView({ analysis: a, title, sessionsGamesLabel, versusLab
         </div>
         <div data-analysis-stat data-tap-player="gilad" className={card} role="group">
           <p className="text-sm font-medium text-[var(--color-ink-muted)]">{statLabels.sessionWins}</p>
-          <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-3xl font-semibold tabular-nums" dir="ltr">
+          <p
+            className="mt-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 font-mono text-3xl font-semibold tabular-nums sm:justify-start"
+            dir="ltr"
+          >
             <span className="inline-flex items-center gap-1.5">
               <Checker player="niv" size={20} aria-hidden />
               <span data-analysis-stat-value data-stat-kind="int" data-value={a.sessionWins.niv}>
@@ -92,9 +99,12 @@ export function AnalysisView({ analysis: a, title, sessionsGamesLabel, versusLab
             </span>
           </p>
         </div>
-        <div data-analysis-stat data-tap-player="niv" className={card} role="group">
+        <div data-analysis-stat data-tap-player="niv" className={`${card} sm:col-span-2`} role="group">
           <p className="text-sm font-medium text-[var(--color-ink-muted)]">{statLabels.bigWinShare}</p>
-          <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-lg font-medium tabular-nums" dir="ltr">
+          <p
+            className="mt-2 flex flex-wrap justify-center gap-x-4 gap-y-1 text-lg font-medium tabular-nums sm:justify-start"
+            dir="ltr"
+          >
             <span className="inline-flex items-center gap-1.5">
               <Checker player="niv" size={20} aria-hidden />
               <span
@@ -117,29 +127,23 @@ export function AnalysisView({ analysis: a, title, sessionsGamesLabel, versusLab
             </span>
           </p>
         </div>
-        <div data-analysis-stat data-tap-player="gilad" className={card} role="group">
-          <p className="text-sm font-medium text-[var(--color-ink-muted)]">{statLabels.avgTime}</p>
-          <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-lg font-medium tabular-nums" dir="ltr">
-            <PlayerMark
-              player="niv"
-              label={a.avgTimeUsedSec.niv !== null ? formatClock(a.avgTimeUsedSec.niv) : "—"}
-            />
-            <PlayerMark
-              player="gilad"
-              label={a.avgTimeUsedSec.gilad !== null ? formatClock(a.avgTimeUsedSec.gilad) : "—"}
-            />
-          </p>
-        </div>
       </div>
+
+      <PaceBoard
+        faster={a.faster}
+        pace={a.pace}
+        avgNiv={a.avgTimeUsedSec.niv}
+        avgGilad={a.avgTimeUsedSec.gilad}
+      />
 
       <div
         data-analysis-footnotes
-        className={`mt-6 space-y-3 text-sm leading-relaxed text-[var(--color-ink-muted)] ${card}`}
+        className={`mt-6 max-sm:mx-auto max-sm:max-w-md space-y-3 text-sm leading-relaxed text-[var(--color-ink-muted)] ${card}`}
       >
         <p>{footnotes.streak}</p>
         <p>{footnotes.pace}</p>
         <p>{footnotes.timeLine}</p>
-        <p className="flex flex-wrap items-center gap-x-3 gap-y-1">
+        <p className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 sm:justify-start">
           <span>{statLabels.timedOut}</span>
           <PlayerMark player="niv" label={`${footnotes.players.niv} ${footnotes.timedOut.niv}`} size={16} />
           <PlayerMark player="gilad" label={`${footnotes.players.gilad} ${footnotes.timedOut.gilad}`} size={16} />
