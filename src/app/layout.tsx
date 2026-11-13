@@ -1,6 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Sans, IBM_Plex_Sans_Hebrew, IBM_Plex_Mono } from "next/font/google";
 
+import { I18nProvider } from "@/lib/i18n/client";
+import { dirFor } from "@/lib/i18n/config";
+import { getDict } from "@/lib/i18n/server";
+
 import "./globals.css";
 
 const plexSansLatin = IBM_Plex_Sans({
@@ -24,10 +28,13 @@ const plexMono = IBM_Plex_Mono({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: "ניב מול גלעד · שש בש",
-  description: "רישום תוצאות שש בש, שעון 6 דקות לכל שחקן וניתוח לאורך זמן.",
-};
+// The locale comes from a cookie, so the root shell is rendered per request.
+export const instant = false;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getDict();
+  return { title: t.meta.title, description: t.meta.description };
+}
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -35,15 +42,16 @@ export const viewport: Viewport = {
   themeColor: "#F6F0E8",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const { locale } = await getDict();
   return (
     <html
-      lang="he"
-      dir="rtl"
+      lang={locale}
+      dir={dirFor(locale)}
       className={`${plexSansLatin.variable} ${plexSansHebrew.variable} ${plexMono.variable} h-full`}
     >
       <body className="min-h-full bg-[var(--color-canvas)] font-sans text-[var(--color-ink)] antialiased">
-        {children}
+        <I18nProvider locale={locale}>{children}</I18nProvider>
       </body>
     </html>
   );
