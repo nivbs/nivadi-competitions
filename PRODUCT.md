@@ -16,7 +16,7 @@ Next.js with TypeScript and React; deployed on Vercel (Hobby). Neon Postgres for
 
 ## Product Purpose
 
-A web application for logging head-to-head competition results, starting with backgammon (Hebrew name: שש בש). Each recorded match should capture scores, optional notes, the date played, and **per-player clock time used**, where each player has up to **6 minutes** of clock per match. The product should support **analysis derived from cumulative results**, including statistics that incorporate time usage—not only win/loss and scores in isolation.
+A web application for logging head-to-head competition results, starting with backgammon (Hebrew name: שש בש). A record is a **session** of games played in a row. Each game stores its winner, **win type** (normal = 1 point, Mars/gammon = 2, backgammon = 3) and **per-player clock time used**. The built-in clock has a configurable bank and per-move delay (default 6:00 + 12s) and resets per game. The product should support **analysis derived from cumulative results**, including statistics that incorporate time usage—not only win/loss and scores in isolation.
 
 ## Positioning
 
@@ -33,7 +33,7 @@ A **couple-only competition ledger** that treats **clock time** as structured ma
 ### Confirmed capabilities
 
 - Log **two-player** match results; **initial game:** backgammon (שש בש), with the product structured so additional games could be added later (**inferred:** extensibility is likely but not yet specified in scope detail).
-- Capture **scores**, **optional notes**, **date played**, and **per-player clock time used** (budget: **6 minutes per player per match**).
+- Capture **games per session** with win type, **optional notes**, **date played**, and **per-player clock time used**; full edit and delete (bank and delay are configurable; default 6:00 + 12s per game).
 - Provide **analysis** computed from **cumulative** history, explicitly including **time-related** metrics (exact charts and metrics **not** specified here).
 
 ### Technical and product constraints

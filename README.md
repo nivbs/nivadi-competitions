@@ -1,6 +1,6 @@
 # ניב מול גלעד · שש בש
 
-אתר לנייד (Next.js) לרישום תוצאות שש בש בין ניב לגלעד: ניקוד, זמן שעון (עד 6 דקות לכל שחקן), תאריך והערות — עם ניתוח מצטבר לאורך זמן.
+אתר לנייד (Next.js) לרישום תוצאות שש בש בין ניב לגלעד. סשן הוא כמה משחקים ברצף; לכל משחק מנצח וסוג ניצחון (רגיל 1, מארס 2, בק גמון 3) וזמן שעון. כולל טיימר דיגיטלי (זמן בסיס + דיליי, ברירת מחדל 6:00 + 12ש׳) עם כפתור כתר ״מנצח״ ששומר אוטומטית, עריכה ומחיקה, וניתוח מצטבר.
 
 ## מה בתוך הפרויקט
 
@@ -34,8 +34,12 @@
 5. הרצה מקומית:
 
    ```bash
+   npm run db:apply-sessions   # פעם אחת אחרי עדכון קוד (מיגרציית sessions/games)
+   npm run db:seed
    npm run dev
    ```
+
+   פתחו **http://localhost:3000** — תופנו לכניסה (`/sign-in?step=gate`, סיסמת אתר ברירת מחדל `GN110225`, ואז בחירת ניב/גלעד).
 
 6. **Vercel:** חברו את הריפו, הגדירו `DATABASE_URL` ו־`SESSION_SECRET` בדשבורד, והריצו `db:push` + `db:seed` מול מסד הייצור (או דרך SQL).
 
@@ -49,6 +53,7 @@
 | `npm run db:generate` | יצירת קבצי מיגרציה מ־`src/db/schema.ts` |
 | `npm run db:push` | דחיפת הסכמה ל־DB (מתאים לפיתוח) |
 | `npm run db:seed` | נתוני התחלה |
+| `npm test` | בדיקות יחידה (ניקוד, שעון, ניתוח) |
 | `npm run db:studio` | Drizzle Studio |
 
 ## קבצי הקשר (Impeccable)
@@ -57,3 +62,7 @@
 - [`DESIGN.md`](DESIGN.md) — כיוון חזותי (ערב־שחמנואי, מובייל־פירסט)
 
 A newer Impeccable (v4.8.0) is available; this project used the installed skill output from context. Update with `npx impeccable update` in a future session if you want.
+
+## מעבר לסשנים (חד־פעמי)
+
+המיגרציה `0002_sessions_and_games` מוחקת את הטבלה הישנה `matches` ויוצרת `sessions` ו־`games`. **צרו גיבוי / ענף Neon לפני** הרצת `npm run db:push` על הייצור, ואז הזינו מחדש את המשחקים הישנים דרך `/log` (סימון מארס לפי הצורך).
