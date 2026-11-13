@@ -52,7 +52,11 @@ A **couple-only competition ledger** that treats **clock time** as structured ma
 
 ## Brand Commitments
 
-No formal brand, voice, or marketing claims are recorded at init. The name **nivadi-competitions** reflects a personal/couple context only (**inferred** from repository naming; not a binding brand contract). Product copy is maintained in **Hebrew and English** dictionaries in-repo.
+- **World:** a Middle-Eastern backgammon (shesh-besh) board: dark walnut, cream felt, gold inlay, a little burnt red/orange, Arabesque geometry. Playful and a little cheeky, with many small backgammon motifs (points, checkers, dice, doubling cube, stitched seams).
+- **Player-color law (confirmed):** Niv is always the dark side (walnut brown / black checkers). Gilad is always the light side (white / beige / cream checkers). This is a fixed identity in every screen and language, and never depends on who is signed in. Brand terracotta, gold and red never represent a player.
+- **Dice rule (confirmed):** dice show pips, never numerals. Odd faces (1, 3, 5) have red pips, even faces (2, 4, 6) have black pips. Dice are white with 3D bevel and soft shadow. "6 and 5" in the intro are a 6-pip and a 5-pip die. The doubling cube may show 2 to 64.
+- **Motion (confirmed):** GSAP animations on user actions, funny and skippable; concepts are approved by the owner before they are built.
+- The name **nivadi-competitions** reflects a personal/couple context only. Product copy is maintained in **Hebrew and English** dictionaries in-repo.
 
 ## Evidence on Hand
 

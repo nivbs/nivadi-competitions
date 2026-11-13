@@ -1,188 +1,166 @@
 # Nivadi Competitions — Design System
 
-**Mode:** Operate — a task-oriented app surface: clear hierarchy, scannable status, primary actions obvious, minimal decorative chrome. Warm craft + backgammon identity supports recognition and delight without slowing workflows.
+**Mode:** Operate — a task-oriented app. Scanability, obvious primary actions and a calm data surface come first. The backgammon board world lives in the shell, the dice, the checkers and the empty states; it never sits behind dense data.
 
-**Visual world:** Arab-inspired craft (geometry, warmth, material honesty) plus backgammon motifs: inlaid triangles and points, pip patterns as subtle texture, wood grain and terracotta warmth with brass accents. **Mobile-first**; layout and touch targets assume narrow screens first, then scale up.
+**Visual world:** A Middle-Eastern backgammon board (shesh-besh) seen from above. Dark walnut frame, cream felt playfield, alternating dark and tan triangular points with stitched dashed seams, ivory and brown checkers, white pip dice, a doubling cube, gold inlay and a little burnt red/orange. Arabesque geometry (eight-point stars, stitched borders) decorates dividers and frames. Playful and a little cheeky, never childish. **Mobile-first.**
 
 ---
 
-## 1. Color tokens (CSS custom properties)
+## 1. Color tokens
 
-Define on `:root` for light theme. Optionally mirror under `[data-theme="dark"]` or `@media (prefers-color-scheme: dark)` with paired values. Use **solid colors only** for text and UI fills (see Craft floor).
+Defined on `:root` in `src/app/globals.css`. Solid colors only for text and UI fills (no gradient text). Gradients are allowed only on non-text surfaces (wood, checkers, dice faces).
+
+### Board palette
 
 | Token | Hex | Role |
 |-------|-----|------|
-| `--color-canvas` | `#F6F0E8` | Page background (warm plaster / limewash) |
-| `--color-surface` | `#FFFCF7` | Cards, sheets, elevated panels |
-| `--color-surface-raised` | `#FFFFFF` | Modals, sticky bars (when needed) |
-| `--color-border` | `#E5D9CC` | Hairline borders, dividers |
-| `--color-border-strong` | `#C9B8A6` | Focus rings, selected containers |
-| `--color-ink` | `#2A241D` | Primary text |
-| `--color-ink-muted` | `#5C5349` | Secondary text, helper copy |
-| `--color-ink-faint` | `#8A8177` | Tertiary / placeholders |
-| `--color-brand` | `#B8613A` | Primary actions, key highlights (terracotta) |
-| `--color-brand-hover` | `#9E4F2E` | Hover / pressed for brand |
-| `--color-accent` | `#C6A04E` | Secondary emphasis (brass) |
-| `--color-accent-muted` | `#A6853F` | Muted brass for icons / chips |
-| `--color-inlay-dark` | `#4A3F35` | “Ebony” inlay, dark UI chrome |
-| `--color-inlay-mid` | `#6B5B4D` | Secondary dark surfaces |
-| `--color-success` | `#3D6B4A` | Positive state |
-| `--color-warning` | `#C2873A` | Caution |
-| `--color-danger` | `#B23B3B` | Destructive / error |
-| `--color-focus` | `#1F6FEB` | Focus ring (keep distinct from brand) |
+| `--color-walnut-deep` | `#1f0f07` | Shell background, darkest wood |
+| `--color-walnut` | `#2f1a0e` | Header, nav, timer chrome |
+| `--color-walnut-frame` | `#4d2f1b` | Board frame, side borders |
+| `--color-point-dark` | `#4a2616` | Dark triangle points |
+| `--color-point-tan` | `#b07c4c` | Light triangle points |
+| `--color-canvas` | `#f2dfbf` | Cream felt: page background of the playfield |
+| `--color-surface` | `#fbf0da` | Cards and sheets on the felt |
+| `--color-surface-raised` | `#fff8e8` | Modals, sticky bars |
+| `--color-border` | `#dcc197` | Hairlines on felt |
+| `--color-border-strong` | `#b48f58` | Selected containers |
+| `--color-gold` / `--color-accent` | `#d4a64a` | Inlay, active states on walnut, win-type accents |
+| `--color-accent-muted` | `#7a5714` | Brass for text and icons on felt (AA on felt) |
+| `--color-brand` / `--color-brand-hover` | `#b8431f` / `#94341a` | Primary actions: burnt orange-red |
+| `--color-pip-red` | `#c0261d` | Odd-face dice pips only |
+| `--color-pip-black` | `#16110d` | Even-face dice pips |
+| `--color-die` | `#fffdf7` | Die body |
 
-**Semantic aliases (optional, map to the above):**
+### Text
 
-- `--color-text-primary` → `var(--color-ink)`
-- `--color-text-secondary` → `var(--color-ink-muted)`
-- `--color-text-tertiary` → `var(--color-ink-faint)`
-- `--color-bg-default` → `var(--color-canvas)`
-- `--color-bg-elevated` → `var(--color-surface)`
+| Token | Hex | Role |
+|-------|-----|------|
+| `--color-ink` | `#26140a` | Primary text on felt |
+| `--color-ink-muted` | `#5a4331` | Secondary text |
+| `--color-ink-faint` | `#6f563b` | Tertiary, placeholders (AA on felt) |
+| `--color-cream` | `#f6e8cc` | Primary text on walnut |
+| `--color-cream-muted` | `#d9c39a` | Secondary text on walnut |
 
-**Dark theme suggestion:** deepen canvas (`#1C1814`), lift surfaces (`#252019` / `#2E2820`), lighten ink toward `#F2EBE3`, keep `--color-brand` and `--color-accent` readable on dark (test contrast; brass may need `--color-accent-on-dark` adjustment).
+### Status
 
----
-
-## 2. Typography
-
-**Primary stack:** **IBM Plex Sans** via `next/font/google` for Latin + extended support.
-
-**Hebrew:** Load IBM Plex Sans with `subsets: ["latin", "hebrew"]` (and `weight`/`style` as needed). If a glyph is missing, system fallback: `"Segoe UI Hebrew", "Noto Sans Hebrew", system-ui, sans-serif`.
-
-**Monospace** (codes, IDs, tournament keys): IBM Plex Mono with matching `next/font` setup, or a single `--font-mono` variable.
-
-**CSS variables (after `next/font` injects):**
-
-- `--font-sans` — IBM Plex Sans  
-- `--font-mono` — IBM Plex Mono (optional)
-
-**Scale (Operate mode — calm, readable):**
-
-| Role | Size | Weight | Line height | Notes |
-|------|------|--------|-------------|--------|
-| Display | `clamp(1.5rem, 4vw, 1.875rem)` | 600 | 1.25 | Page title only |
-| Title | `1.25rem` | 600 | 1.3 | Section titles |
-| Body | `1rem` | 400 | 1.5 | Default UI |
-| Body strong | `1rem` | 600 | 1.5 | Emphasis inside paragraphs |
-| Label | `0.875rem` | 500 | 1.4 | Form labels, tabs |
-| Caption | `0.8125rem` | 400 | 1.4 | Meta, timestamps |
-| Number / stat | `1.5rem`–`2rem` | 600 | 1.1 | Large numerals in stat cards (tabular nums) |
-
-Use `font-feature-settings: "tnum" 1` (or `font-variant-numeric: tabular-nums`) for aligned stats.
-
-**Hebrew-specific:** Allow slightly longer line lengths for readability; avoid justified body text in RTL. Headings and buttons should not hyphenate aggressively; prefer `word-break` / `overflow-wrap` sensible defaults per locale.
+`--color-success #3d6b4a`, `--color-warning #c2873a`, `--color-danger #b23b3b`, `--color-focus #1f6feb` (focus stays blue so it is distinct from every brand hue).
 
 ---
 
-## 3. Spacing rhythm
+## 2. Player-color law
 
-**Base unit:** `4px` (`0.25rem`). All spacing steps are multiples.
+**Niv is always the dark side: walnut brown / black checkers. Gilad is always the light side: white / beige / cream checkers.** It is a fixed identity, never a theme option. It is identical in Hebrew and English, on walnut and on felt, and for whoever is signed in. Colors never swap based on the viewer.
 
-| Token | Value | Use |
-|-------|-------|-----|
-| `--space-1` | `4px` | Tight icon gaps |
-| `--space-2` | `8px` | Inline gaps, dense lists |
-| `--space-3` | `12px` | Default inline padding in chips |
-| `--space-4` | `16px` | Card padding (mobile), section gaps |
-| `--space-5` | `24px` | Between blocks, card padding (tablet+) |
-| `--space-6` | `32px` | Section separation |
-| `--space-7` | `48px` | Major section breaks |
-| `--space-8` | `64px` | Hero / empty state vertical rhythm |
+| Token | Hex | Role |
+|-------|-----|------|
+| `--player-niv-fill` | `#3a2012` | Niv checker, bar and chip fill |
+| `--player-niv-edge` | `#d4a64a` | Niv rim (gold hairline keeps it visible on walnut) |
+| `--player-niv-ink` | `#f6e8cc` | Text on Niv fill |
+| `--player-gilad-fill` | `#efe6d2` | Gilad checker, bar and chip fill |
+| `--player-gilad-edge` | `#8a6a45` | Gilad rim (walnut hairline keeps it visible on felt) |
+| `--player-gilad-ink` | `#2a170c` | Text on Gilad fill |
 
-**Layout:** Mobile default horizontal padding `--space-4`; widen to `--space-5` at `min-width: 640px`. Max content width for readable forms: `min(100%, 40rem)`; for dashboards with cards: `min(100%, 72rem)` with responsive grids.
+Rules:
 
-**Touch targets:** Minimum `44×44px` for tappable rows and icon buttons on small screens.
-
----
-
-## 4. Radius, shadow, borders
-
-- **Radius:** `--radius-sm` `6px` (inputs), `--radius-md` `10px` (cards), `--radius-lg` `14px` (modals). Soft craft, not pills everywhere.
-- **Shadow:** Restrained. Prefer border (`var(--color-border)`) over heavy shadow. Optional `--shadow-soft`: `0 1px 2px rgb(42 36 29 / 0.06), 0 8px 24px rgb(42 36 29 / 0.06)`.
-- **Inlay hint:** Very subtle CSS background (low-contrast triangle or point pattern at ~3–5% opacity) on hero or stat band only — never behind dense data tables.
+- A player's name is always shown with a checker (`PlayerMark`) or a fill in that player's color. A score, bar, badge, row or button owned by a player is tinted by its owner.
+- Terracotta (`--color-brand`), gold and red never represent a player. Gold and red mean emphasis, win type, and odd dice pips.
+- All player styling comes from `src/lib/player-style.ts` and the `Checker` / `PlayerMark` primitives. Never hardcode a player color elsewhere.
 
 ---
 
-## 5. Navigation (Operate mode)
+## 3. Dice rule
 
-**Purpose:** Persistent wayfinding + account/context without stealing vertical space on mobile.
+Dice never show numerals. Faces show pips: two dots means two. Odd faces (1, 3, 5) have **red** pips, even faces (2, 4, 6) have **black** pips. Dice are white with a bevel, an inner highlight and a soft offset drop shadow so they read as 3D. The "6 and 5" in "שש בש" appear as a 6-pip face and a 5-pip face. The `Die` primitive is the only way to draw a die.
 
-**Mobile (default):**
-
-- **Bottom bar** or **top app bar** + overflow menu: max **4–5** primary destinations; icon + short label in Hebrew/English as needed.
-- Active route: `color: var(--color-brand)` or bottom border `2px solid var(--color-brand)`; **no gradient text** on labels.
-- Background: `var(--color-surface-raised)` or `var(--color-surface)` with top border `1px solid var(--color-border)` for separation.
-
-**Desktop:**
-
-- Optional left rail (`280px` max) or compact top nav with secondary items in a “More” pattern.
-- Keyboard: roving `tabindex` for bar items; skip link to main.
-
-**RTL:** Mirror bar order when `dir="rtl"`; icons that imply direction (chevrons, back) flip; logo position swaps to **inline-end**.
-
-**Craft floor:** No eyebrow kickers above nav labels; no ultra-small all-caps preface lines. Titles are real titles or omitted.
+The doubling cube (`DoublingCube`) is the one place a numeral is allowed, because the real cube shows 2 to 64.
 
 ---
 
-## 6. Stat cards (dashboard)
+## 4. Motifs
 
-**Structure:**
+Small and many, but budgeted: heavy in the shell, hero and empty states; light in data areas.
 
-- Container: `background: var(--color-surface)`; `border: 1px solid var(--color-border)`; `border-radius: var(--radius-md)`; `padding: var(--space-4)` (mobile) / `var(--space-5)` (desktop).
-- **Primary metric:** One large number (`--color-ink`, tabular figures). Optional short unit suffix same line, `font-size` from caption scale, `color: var(--color-ink-muted)`.
-- **Label:** Single line under or beside the number — **sentence case** or natural Hebrew; **no eyebrow** line above the number, **no** tiny uppercase prelude.
-- **Delta / trend:** Optional second row; use color tokens (`--color-success` / `--color-danger`) and icons; keep text solid, no gradient fills on glyphs.
+- **Points:** a `PointsRow` strip of alternating dark and tan triangles under the header, above the nav and on sheet tops.
+- **Checkers:** owner marks, win-type indicators (gammon is 2 checkers, backgammon is 3), the stack in the score hero.
+- **Dice:** win-type pickers (1, 2, 3 pips), intro, sign-in, empty states.
+- **Doubling cube:** the logo, loading and the winner moment.
+- **Stitching:** `.stitched` dashed inner border on boards and sheets, echoing the dashed seam on every point.
+- **Arabesque:** `StarDivider` (eight-point star between two rules) replaces plain horizontal rules in cards.
+- **Bar and frame:** `BoardFrame` (walnut frame, cream felt panel, gold hairline).
 
-**Backgammon nod:** Optional faint pip grid or single triangle watermark in card corner at ≤4% opacity of `--color-ink`; must pass contrast for WCAG non-text if interactive.
-
-**Craft floor:** **No gradient text** on metrics or labels. No rainbow or dual-tone fills on numbers; use solid `var(--color-ink)` or `var(--color-brand)` only where emphasis is intended.
-
----
-
-## 7. Motion: GSAP intro — dice 6 and 5 (“שש בש”)
-
-**Behavior:** On **first load of the app shell** (once per session or once per cold load — choose one consistently), show a minimal dice motif: two faces reading **6** and **5**, with the Hebrew phrase **שש בש** adjacent or as accessible text. Duration **brief** (e.g. under `1.2s` total), then yield to content without blocking interaction (skip or fade when user navigates quickly).
-
-**Implementation notes:**
-
-- Use **GSAP** (`gsap`) with `@gsap/react`/`useGSAP` in a client component mounted at layout or a dedicated intro layer `position: fixed` with `pointer-events: none` after complete (or `none` throughout if purely decorative).
-- **Respect `prefers-reduced-motion: reduce`:** Do not run position/scale/rotation tweens; either show static final frame for ~300ms or skip the intro entirely and show main UI. Also honor a `localStorage` flag if user dismisses branding once.
-- Motion should not shift layout (no CLS); reserve space or overlay only the safe area.
+Motifs never go behind tables, lists of numbers, or form fields.
 
 ---
 
-## 8. RTL & Hebrew-capable UI
+## 5. Typography
 
-**Document:** Set `<html lang="he">` or `lang="en"` per route; set `dir="rtl"` or `dir="ltr"` on `<html>` or a wrapping provider based on locale.
+- **Display:** Frank Ruhl Libre (Hebrew + Latin serif) via `next/font`, `--font-display`, for page titles and big player names. Calligraphic but sturdy, fits the Middle-Eastern direction and renders Hebrew natively.
+- **Body and UI:** IBM Plex Sans + IBM Plex Sans Hebrew (`--font-sans`).
+- **Numbers and clock:** IBM Plex Mono, tabular figures.
 
-**CSS:**
+| Role | Size | Weight | Notes |
+|------|------|--------|-------|
+| Display | `clamp(1.75rem, 5vw, 2.5rem)` | 700 | Frank Ruhl Libre, page title only |
+| Title | `1.25rem` | 600 | Sections |
+| Body | `1rem` | 400 | 1.5 line height |
+| Label | `0.875rem` | 500 | Form labels |
+| Caption | `0.8125rem` | 400 | Meta |
+| Stat | `1.5rem`–`3rem` | 600 | Mono, tabular |
 
-- Prefer **logical properties:** `margin-inline-start` / `end`, `padding-inline`, `inset-inline`, `border-inline-start`, `text-align: start` instead of left/right.
-- **Icons:** Mirror directional icons (arrows, chevrons, forward/back) in RTL; do not mirror symmetric or locale-agnostic icons.
-- **Numbers:** Tournament scores and IDs may stay LTR inside `dir="ltr"` spans or `unicode-bidi: isolate` when mixed with Hebrew sentences.
-
-**Forms:** Labels align to **start**; error messages follow field block order consistently in both directions.
-
-**Testing:** Exercise longest Hebrew strings in buttons, nav, and stat labels to avoid truncation bugs.
-
----
-
-## 9. Accessibility & Operate requirements
-
-- Text contrast: aim for **WCAG AA** minimum; brass/terracotta on light surfaces need verification.
-- Focus: visible ring using `var(--color-focus)` (or `:focus-visible` with 2px outline and offset).
-- Hit areas and form inputs large enough on mobile; errors associated with fields via `aria-describedby`.
+Hebrew: no justified text, no aggressive hyphenation. No eyebrow kickers above headings.
 
 ---
 
-## 10. Implementation checklist (engineering)
+## 6. Spacing, radius, shadow
 
-- [ ] Add IBM Plex Sans (+ Hebrew subset) and optional Plex Mono in root `layout` via `next/font`.
-- [ ] Map tokens in `globals.css` and align Tailwind v4 `@theme` if used.
-- [ ] Introduce nav shell (mobile-first) with RTL mirroring tests.
-- [ ] Build stat card primitive per section 6; add Storybook or visual regression later if needed.
-- [ ] Ship GSAP intro behind `prefers-reduced-motion` and session guard; ensure “שש בש” + dice 6/5 only once per chosen policy.
+Base unit `4px`: `--space-1` 4, `-2` 8, `-3` 12, `-4` 16, `-5` 24, `-6` 32. Mobile horizontal padding 16px; touch targets at least 44×44px.
+
+Radius: `--radius-sm` 6px, `--radius-md` 10px, `--radius-lg` 14px. Checkers are circles, dice use ~18% corner radius.
+
+Shadows always have an offset and a soft blur: `--shadow-soft` for cards on felt, `--shadow-die` and `--shadow-checker` for 3D pieces. No hard offset shadows, no zero-offset colored glow.
 
 ---
 
-*This document defines the intended UI direction for Nivadi Competitions (Next.js app). Iterate tokens in code with real content and Hebrew copy.*
+## 7. Shell and navigation
+
+- **Header** (3.75rem): walnut with a gold hairline, a small doubling-cube logo, game name in cream, language switcher, current player as a `PlayerMark`. A `PointsRow` runs along its lower edge.
+- **Board:** the page sits on walnut; content is a cream felt panel with walnut side borders from `sm` upward.
+- **Mobile nav:** walnut bar, gold top hairline, cream labels. Active item is gold with a gold point triangle above it.
+- **Cards on felt:** `--color-surface`, 1px `--color-border`, `--radius-md`, `--shadow-soft`. No nested cards, no identical icon-heading-text card grids.
+- **Timer:** full-bleed. Niv's half is walnut-dark with cream text, Gilad's half is cream with walnut text. Active side gets a gold ring, flagged side a red ring.
+
+RTL: logical properties, mirror directional icons, keep numerals in `dir="ltr"`.
+
+---
+
+## 8. Motion (GSAP)
+
+Funny, quick, skippable, and always tied to a user action. GSAP only (`gsap` + `@gsap/react`), via `useGSAP` with cleanup. One authored moment per action, exponential ease-out, transforms and opacity first.
+
+- `prefers-reduced-motion: reduce` gets a static final frame, never a tween.
+- No layout shift: animate overlays and transforms only.
+- Every animation is skippable and never blocks input.
+
+Approved moments (all in `src/components/motion/` and `SheshBeshIntro.tsx`):
+
+- **Intro (about 2.8s, tap to skip):** dice are thrown from off-screen and bounce onto 6 and 5, the first thud knocks the title in, a checker rolls along the frame and falls off the edge, then a Hebrew/English quip.
+- **Save game:** the winner's checkers (1, 2 or 3) hop to the winner's side while the loser's checker is flicked off with a BONK (sound included). Gammon and backgammon shake the header and nav.
+- **Winner:** the doubling cube spins 2 to 64 and slams down, a crown drops on it, the loser's checker wobbles sadly. Backgammon rains checkers. Triggered on gammon/backgammon saves and when a session is finished.
+- **Timer:** dice rattle on the first tap, a nervous checker pile and trembling digits under 10 seconds, a heavy flag drop with a cymbal crash on timeout.
+- **Navigation and presses:** buttons and links press down like checkers, pages flip up into place (not on the timer).
+- **Language and player switch:** a die is re-rolled.
+
+---
+
+## 9. Accessibility
+
+- AA text contrast: cream on walnut, ink on felt, gold on walnut for large or bold text only; use `--color-accent-muted` for gold text on felt.
+- Dice and checkers carry `role="img"` and an `aria-label`; they never carry meaning that is not also in text.
+- Visible `:focus-visible` ring in `--color-focus`.
+- Reduced motion honored everywhere.
+
+---
+
+## 10. Primitives (engineering)
+
+`src/components/board/`: `Die`, `DoublingCube`, `Checker`, `PlayerMark`, `PointsRow`, `StarDivider`, `BoardFrame`. Helpers: `src/lib/player-style.ts`. Global classes in `globals.css`: `.wood`, `.felt`, `.stitched`.
