@@ -3,7 +3,7 @@ import { revalidatePath } from "next/cache";
 import { closeIdleSessions } from "@/lib/sessions/close-idle";
 
 /**
- * Vercel Cron: every 10 minutes (see vercel.json).
+ * Vercel Cron: once daily at 05:00 UTC (see vercel.json; Hobby plan).
  * Set CRON_SECRET in the project; Vercel sends `Authorization: Bearer <CRON_SECRET>`.
  */
 export async function GET(request: Request) {
