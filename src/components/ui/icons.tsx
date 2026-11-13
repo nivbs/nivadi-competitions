@@ -97,3 +97,13 @@ export function ChevronDownIcon(props: P) {
     </svg>
   );
 }
+
+export function LogOutIcon(props: P) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M10 4H6a2 2 0 00-2 2v12a2 2 0 002 2h4" />
+      <path d="M15 12H4" />
+      <path d="M19 8l4 4-4 4" />
+    </svg>
+  );
+}
