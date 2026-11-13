@@ -5,4 +5,3 @@ export async function getPlayerSlugFromSession(): Promise<PlayerSlug | null> {
   return getPlayerSlugFromCookies();
 }
 
-export { PLAYER_DISPLAY } from "@/lib/session/types";

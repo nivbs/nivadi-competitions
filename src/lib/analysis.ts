@@ -1,129 +1,85 @@
-import type { matches } from "@/db/schema";
+import type { SessionView } from "@/lib/queries";
+import { opponentOf, summarizeGames, type PlayerSlug, type PlayerTally } from "@/lib/scoring";
 
-import { MAX_TIME_SECONDS } from "./match-validation";
-
-type MatchRow = typeof matches.$inferSelect;
-
-export type MatchAnalysis = {
-  totalMatches: number;
-  nivWins: number;
-  giladWins: number;
-  ties: number;
-  nivWinRate: number | null;
-  averageScoreDiffNiv: number | null;
-  /** Positive = Niv tends to finish with more time left (used less clock). */
-  averageTimeRemainingAdvantageSec: number | null;
-  nivAvgTimeUsedSec: number | null;
-  giladAvgTimeUsedSec: number | null;
-  nivBankBursts: number;
-  giladBankBursts: number;
-  currentStreakOwner: "niv" | "gilad" | null;
-  currentStreakLength: number;
-  matchesPerWeek: number | null;
+export type Analysis = {
+  totalSessions: number;
+  totalGames: number;
+  niv: PlayerTally;
+  gilad: PlayerTally;
+  sessionWins: { niv: number; gilad: number; ties: number };
+  /** Share of decided games won by Niv. */
+  nivGameWinRate: number | null;
+  /** Share of each player's wins that were Mars or backgammon. */
+  nivBigWinShare: number | null;
+  giladBigWinShare: number | null;
+  avgTimeUsedSec: { niv: number | null; gilad: number | null };
+  /** Positive = Niv uses less clock than Gilad on average. */
+  avgTimeAdvantageSec: number | null;
+  timedOut: { niv: number; gilad: number };
+  streak: { owner: PlayerSlug | null; length: number };
+  gamesPerWeek: number | null;
 };
 
-function mean(values: number[]): number | null {
-  if (values.length === 0) {
-    return null;
+const mean = (v: number[]) => (v.length ? v.reduce((a, b) => a + b, 0) / v.length : null);
+
+export function analyzeSessions(sessions: SessionView[]): Analysis {
+  const chrono = [...sessions].sort((a, b) => a.playedAt.getTime() - b.playedAt.getTime());
+  const allGames = chrono.flatMap((s) => s.games);
+  const total = summarizeGames(allGames);
+
+  const sessionWins = { niv: 0, gilad: 0, ties: 0 };
+  for (const s of chrono) {
+    if (s.games.length === 0) continue;
+    if (s.summary.leader) sessionWins[s.summary.leader] += 1;
+    else sessionWins.ties += 1;
   }
-  return values.reduce((a, b) => a + b, 0) / values.length;
-}
 
-export function analyzeMatches(
-  rows: MatchRow[],
-  opts: { nivPlayerId: string; giladPlayerId: string },
-): MatchAnalysis {
-  const sorted = [...rows].sort(
-    (a, b) => new Date(a.playedAt).getTime() - new Date(b.playedAt).getTime(),
-  );
-
-  let nivWins = 0;
-  let giladWins = 0;
-  let ties = 0;
-  const scoreDiffs: number[] = [];
-  const timeAdvSec: number[] = [];
   const nivTimes: number[] = [];
   const giladTimes: number[] = [];
-  let nivBankBursts = 0;
-  let giladBankBursts = 0;
-
-  for (const m of sorted) {
-    scoreDiffs.push(m.nivScore - m.giladScore);
-    timeAdvSec.push(m.giladTimeUsedSec - m.nivTimeUsedSec);
-    nivTimes.push(m.nivTimeUsedSec);
-    giladTimes.push(m.giladTimeUsedSec);
-    if (m.nivTimeUsedSec >= MAX_TIME_SECONDS) {
-      nivBankBursts += 1;
+  const advantages: number[] = [];
+  const timedOut = { niv: 0, gilad: 0 };
+  for (const g of allGames) {
+    if (g.nivTimeUsedSec != null && g.giladTimeUsedSec != null) {
+      nivTimes.push(g.nivTimeUsedSec);
+      giladTimes.push(g.giladTimeUsedSec);
+      advantages.push(g.giladTimeUsedSec - g.nivTimeUsedSec);
     }
-    if (m.giladTimeUsedSec >= MAX_TIME_SECONDS) {
-      giladBankBursts += 1;
-    }
-    if (m.winnerPlayerId === opts.nivPlayerId) {
-      nivWins += 1;
-    } else if (m.winnerPlayerId === opts.giladPlayerId) {
-      giladWins += 1;
-    } else {
-      ties += 1;
-    }
+    // The player who ran out of time is the opponent of the winner.
+    if (g.timedOut) timedOut[opponentOf(g.winner)] += 1;
   }
 
-  const total = sorted.length;
-  const decided = nivWins + giladWins;
-  const nivWinRate = decided > 0 ? nivWins / decided : null;
-
-  let currentStreakOwner: "niv" | "gilad" | null = null;
-  let currentStreakLength = 0;
-  for (let i = sorted.length - 1; i >= 0; i -= 1) {
-    const w = sorted[i].winnerPlayerId;
-    let owner: "niv" | "gilad" | null = null;
-    if (w === opts.nivPlayerId) {
-      owner = "niv";
-    } else if (w === opts.giladPlayerId) {
-      owner = "gilad";
-    }
+  let owner: PlayerSlug | null = null;
+  let length = 0;
+  for (let i = allGames.length - 1; i >= 0; i -= 1) {
+    const w = allGames[i].winner;
     if (owner === null) {
-      break;
-    }
-    if (currentStreakOwner === null) {
-      currentStreakOwner = owner;
-      currentStreakLength = 1;
-      continue;
-    }
-    if (owner === currentStreakOwner) {
-      currentStreakLength += 1;
-    } else {
-      break;
-    }
+      owner = w;
+      length = 1;
+    } else if (w === owner) length += 1;
+    else break;
   }
 
-  let matchesPerWeek: number | null = null;
-  if (sorted.length >= 2) {
-    const first = new Date(sorted[0].playedAt).getTime();
-    const last = new Date(sorted[sorted.length - 1].playedAt).getTime();
-    const weeks = Math.max((last - first) / (7 * 24 * 60 * 60 * 1000), 1e-6);
-    matchesPerWeek = sorted.length / weeks;
+  let gamesPerWeek: number | null = null;
+  if (chrono.length >= 2) {
+    const span = chrono[chrono.length - 1].playedAt.getTime() - chrono[0].playedAt.getTime();
+    gamesPerWeek = allGames.length / Math.max(span / (7 * 864e5), 1);
   }
+
+  const share = (t: PlayerTally) => (t.games ? (t.mars + t.backgammons) / t.games : null);
 
   return {
-    totalMatches: total,
-    nivWins,
-    giladWins,
-    ties,
-    nivWinRate,
-    averageScoreDiffNiv: mean(scoreDiffs),
-    averageTimeRemainingAdvantageSec: mean(timeAdvSec),
-    nivAvgTimeUsedSec: mean(nivTimes),
-    giladAvgTimeUsedSec: mean(giladTimes),
-    nivBankBursts,
-    giladBankBursts,
-    currentStreakOwner,
-    currentStreakLength,
-    matchesPerWeek,
+    totalSessions: chrono.length,
+    totalGames: total.totalGames,
+    niv: total.niv,
+    gilad: total.gilad,
+    sessionWins,
+    nivGameWinRate: total.totalGames ? total.niv.games / total.totalGames : null,
+    nivBigWinShare: share(total.niv),
+    giladBigWinShare: share(total.gilad),
+    avgTimeUsedSec: { niv: mean(nivTimes), gilad: mean(giladTimes) },
+    avgTimeAdvantageSec: mean(advantages),
+    timedOut,
+    streak: { owner, length },
+    gamesPerWeek,
   };
-}
-
-export function formatClock(seconds: number): string {
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return `${m}:${s.toString().padStart(2, "0")}`;
 }

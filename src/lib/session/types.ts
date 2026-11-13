@@ -11,8 +11,3 @@ export const PLAYER_SLUGS: readonly PlayerSlug[] = ["niv", "gilad"];
 export function isPlayerSlug(value: string): value is PlayerSlug {
   return value === "niv" || value === "gilad";
 }
-
-export const PLAYER_DISPLAY: Record<PlayerSlug, string> = {
-  niv: "ניב",
-  gilad: "גלעד",
-};
