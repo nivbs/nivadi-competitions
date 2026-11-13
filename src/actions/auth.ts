@@ -8,6 +8,7 @@ import {
   setPlayerCookie,
   setSiteAccessCookie,
 } from "@/lib/session/cookies";
+import { getDict } from "@/lib/i18n/server";
 import { isPlayerSlug } from "@/lib/session/types";
 import { verifySitePassword } from "@/lib/site-access";
 
@@ -21,7 +22,8 @@ export async function verifySitePasswordAction(
 ): Promise<PasswordGateState> {
   const password = String(formData.get("password") ?? "");
   if (!verifySitePassword(password)) {
-    return { ok: false, message: "סיסמה לא נכונה." };
+    const { t } = await getDict();
+    return { ok: false, message: t.auth.wrongPassword };
   }
   await setSiteAccessCookie();
   redirect("/sign-in?step=player");
