@@ -12,7 +12,7 @@ Next.js with TypeScript and React; deployed on Vercel (Hobby). Neon Postgres for
 
 ## Users
 
-**Primary users:** Niv and Gilad (a couple). **Scope:** a two-player-only product—there is no multi-participant or open-audience competitive model; usage is intentionally limited to these two accounts.
+**Primary users:** Niv and Gilad (a couple). **Scope:** a two-player-only product—there is no multi-participant or open-audience competitive model; usage is intentionally limited to these two accounts (**confirmed:** no plan to broaden the audience at this time).
 
 ## Product Purpose
 
@@ -24,38 +24,39 @@ A **couple-only competition ledger** that treats **clock time** as structured ma
 
 ## Operating Context
 
-- **Recording workflow:** After (or around) play, either user logs the match with the fields above; the system stores history for ongoing review.
+- **Recording workflow:** After (or around) play, either user logs the match with the fields above; the system stores history for ongoing review. The **timer** route supports live clock play; confirming a winner from the timer can **auto-save** the game into the current session.
 - **Primary device posture:** **Mobile-first**—phones are expected to be the main surface for logging and reviewing results (**inferred:** tablets/desktop may exist but are secondary unless later confirmed).
-- **Privacy posture:** **Private-ish**—intended for **two accounts** and not positioned as a broadly open or marketing-facing product (see Capabilities and Constraints).
+- **Locales:** **Hebrew and English are both first-class**; **Hebrew is the default**. UI direction follows locale (RTL for Hebrew, LTR for English).
+- **Privacy posture:** **Private-ish** via a **shared site password**; not marketed or indexed as a public product. Someone with the URL and password can access the site; no separate per-user accounts beyond picking Niv or Gilad (**confirmed**).
 
 ## Capabilities and Constraints
 
 ### Confirmed capabilities
 
-- Log **two-player** match results; **initial game:** backgammon (שש בש), with the product structured so additional games could be added later (**inferred:** extensibility is likely but not yet specified in scope detail).
+- **Routes (Operate surfaces):** home dashboard, session **log** editor, **timer**, cumulative **analysis**, session **history** (list and detail), and **sign-in** (site gate + player pick).
+- Log **two-player** match results; **initial game:** backgammon (שש בש). Code is competition-scoped so additional games *could* be added later; **none are planned** (**confirmed**).
 - Capture **games per session** with win type, **optional notes**, **date played**, and **per-player clock time used**; full edit and delete (bank and delay are configurable; default 6:00 + 12s per game).
-- Provide **analysis** computed from **cumulative** history, explicitly including **time-related** metrics (exact charts and metrics **not** specified here).
+- **Cumulative analysis** (from stored sessions/games), including: session and game totals; per-player tallies; session win counts; game win rate; share of wins that were Mars/backgammon; average clock time used and time advantage; timeout counts; current win streak; estimated games per week (**confirmed** in codebase; presentation may evolve).
 
 ### Technical and product constraints
 
 - **Player cardinality:** Only two competitors in the product’s core model (Niv and Gilad); not designed for teams, spectators, or open registration flows unless explicitly expanded later.
 - **Deployment and data:** Hosted on **Vercel Hobby** with **Neon Postgres**; **Hobby** plan limits and Neon operational limits apply (**inferred:** standard platform quotas; not enumerated here).
 - **Authentication:** A **shared site password** plus **player selection** (Niv or Gilad) stored in signed HTTP-only cookies—not a public sign-up flow; intended for exactly two users.
-- **Data access:** Historical matches and analyses are **private to the two accounts** (**inferred** from “private-ish” and two-account intent; exact sharing/export rules are **open**).
+- **Data access:** Match history is reachable by anyone who can pass the site password; there is no fine-grained sharing model, export policy, or “leaked link” hardening beyond the gate (**confirmed**).
 
-### Explicitly inferred (labelled)
+### Explicitly open (not decided)
 
-- **Game roadmap:** Only backgammon is named at init; other games are **out of scope until explicitly added** (**inferred**).
-- **Analysis contents:** Beyond “including time stats,” specific analytics (e.g., Elo-like ratings, streaks, averages, time-over-score correlations) are **not** locked—implementation should remain consistent with “cumulative results including time” (**inferred**).
-- **“Private-ish” enforcement:** May combine password gate, no public leaderboards, and no SEO/indexing of scores (**inferred**); exact threat model (link sharing, exports) is **open**.
+- **Additional games:** Extensibility is possible in the data model; **no roadmap** of new games (**confirmed**).
+- **Exports / read-only sharing / SEO:** Not required today; may be revisited if the product outgrows the couple-only context.
 
 ## Brand Commitments
 
-No formal brand, voice, or marketing claims are recorded at init. The name **nivadi-competitions** reflects a personal/couple context only (**inferred** from repository naming; not a binding brand contract).
+No formal brand, voice, or marketing claims are recorded at init. The name **nivadi-competitions** reflects a personal/couple context only (**inferred** from repository naming; not a binding brand contract). Product copy is maintained in **Hebrew and English** dictionaries in-repo.
 
 ## Evidence on Hand
 
-Repository-local documentation and this `PRODUCT.md` are the authoritative product record for init. No third-party testimonials, case studies, or press artifacts are claimed here.
+Repository-local documentation (`README.md`, `PRODUCT.md`), Hebrew README copy, unit tests for scoring/clock/analysis, and seeded competition data are the authoritative artifacts. No third-party testimonials, case studies, or press artifacts are claimed here.
 
 ## Product Principles
 
@@ -64,7 +65,8 @@ Repository-local documentation and this `PRODUCT.md` are the authoritative produ
 3. **Time as signal:** Clock usage is treated as meaningful competitive metadata, not optional trivia.
 4. **Insight over snapshots:** The product should reward continued use through cumulative analysis, not only per-match data entry.
 5. **Mobile-first practicality:** Logging and reading results should remain efficient on small screens (**stated requirement**).
+6. **Bilingual parity:** Hebrew and English both remain usable; default to Hebrew without hiding English (**confirmed**).
 
 ## Accessibility & Inclusion
 
-No specific accessibility conformance target (for example WCAG level) is established in this record. **Mobile-first** implies touch-appropriate layouts and readability on phones (**inferred**); any formal standard should be chosen and recorded in a later product or design decision.
+**Confirmed posture:** Optimize for **mobile touch**, readable type, and **`prefers-reduced-motion`** (e.g. GSAP intro respects reduced motion). Given the **two known users** and personal scope, there is **no commitment to formal WCAG certification**; still apply reasonable contrast, focus visibility, and logical structure as the UI evolves (**confirmed** with practical baseline; not a public compliance target).
