@@ -3,24 +3,46 @@
 :root {
   color-scheme: light;
 
-  --color-canvas: #f6f0e8;
-  --color-surface: #fffcf7;
-  --color-surface-raised: #ffffff;
-  --color-border: #e5d9cc;
-  --color-border-strong: #c9b8a6;
-  --color-ink: #2a241d;
-  --color-ink-muted: #5c5349;
-  --color-ink-faint: #8a8177;
-  --color-brand: #b8613a;
-  --color-brand-hover: #9e4f2e;
-  --color-accent: #c6a04e;
-  --color-accent-muted: #a6853f;
-  --color-inlay-dark: #4a3f35;
-  --color-inlay-mid: #6b5b4d;
+  /* Board palette */
+  --color-walnut-deep: #1f0f07;
+  --color-walnut: #2f1a0e;
+  --color-walnut-frame: #4d2f1b;
+  --color-point-dark: #4a2616;
+  --color-point-tan: #b07c4c;
+  --color-gold: #d4a64a;
+  --color-pip-red: #c0261d;
+  --color-pip-black: #16110d;
+  --color-die: #fffdf7;
+  --color-cream: #f6e8cc;
+  --color-cream-muted: #d9c39a;
+
+  /* Felt and text */
+  --color-canvas: #f2dfbf;
+  --color-surface: #fbf0da;
+  --color-surface-raised: #fff8e8;
+  --color-border: #dcc197;
+  --color-border-strong: #b48f58;
+  --color-ink: #26140a;
+  --color-ink-muted: #5a4331;
+  --color-ink-faint: #6f563b;
+  --color-brand: #b8431f;
+  --color-brand-hover: #94341a;
+  --color-accent: #d4a64a;
+  --color-accent-muted: #7a5714;
+  --color-inlay-dark: #3d2213;
+  --color-inlay-mid: #5a3a22;
   --color-success: #3d6b4a;
   --color-warning: #c2873a;
   --color-danger: #b23b3b;
   --color-focus: #1f6feb;
+
+  /* Player-color law: Niv is always dark, Gilad is always light. */
+  --player-niv-fill: #3a2012;
+  --player-niv-edge: #d4a64a;
+  --player-niv-ink: #f6e8cc;
+  --player-gilad-fill: #efe6d2;
+  --player-gilad-edge: #8a6a45;
+  --player-gilad-ink: #2a170c;
 
   --space-1: 0.25rem;
   --space-2: 0.5rem;
@@ -34,8 +56,14 @@
   --radius-lg: 14px;
 
   --shadow-soft:
-    0 1px 2px rgb(42 36 29 / 0.06),
-    0 8px 24px rgb(42 36 29 / 0.06);
+    0 1px 2px rgb(38 20 10 / 0.12),
+    0 8px 20px rgb(38 20 10 / 0.14);
+  --shadow-die:
+    0 2px 3px rgb(20 8 2 / 0.35),
+    0 8px 14px rgb(20 8 2 / 0.35);
+  --shadow-checker:
+    0 2px 2px rgb(20 8 2 / 0.4),
+    0 5px 8px rgb(20 8 2 / 0.3);
 }
 
 @theme inline {
@@ -44,6 +72,7 @@
   --font-sans: var(--font-sans-hebrew), var(--font-sans-latin), "Segoe UI Hebrew",
     "Noto Sans Hebrew", system-ui, sans-serif;
   --font-mono: var(--font-mono), ui-monospace, monospace;
+  --font-display: var(--font-display), "Frank Ruhl Libre", "David", Georgia, serif;
 }
 
 * {
@@ -51,18 +80,65 @@
 }
 
 body {
-  background: var(--color-canvas);
+  background: var(--color-walnut-deep);
   color: var(--color-ink);
 }
 
+/* Walnut wood: soft grain lines over deep brown. */
+.wood {
+  background-color: var(--color-walnut);
+  background-image:
+    repeating-linear-gradient(
+      92deg,
+      rgb(255 220 170 / 0.035) 0 2px,
+      transparent 2px 9px
+    ),
+    repeating-linear-gradient(
+      88deg,
+      rgb(0 0 0 / 0.14) 0 1px,
+      transparent 1px 14px
+    );
+}
+
+/* Cream felt playfield with a faint woven texture. */
+.felt {
+  background-color: var(--color-canvas);
+  background-image: radial-gradient(rgb(90 60 20 / 0.05) 1px, transparent 1px);
+  background-size: 6px 6px;
+}
+
+/* Stitched seam: dashed inner border like the lines on every point. */
+.stitched {
+  position: relative;
+}
+.stitched::after {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  border: 1.5px dashed color-mix(in srgb, var(--color-gold) 70%, transparent);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
 ::selection {
-  background: color-mix(in srgb, var(--color-brand) 35%, white);
+  background: color-mix(in srgb, var(--color-gold) 55%, white);
   color: var(--color-ink);
 }
 
 :focus-visible {
   outline: 2px solid var(--color-focus);
   outline-offset: 2px;
+}
+
+input,
+textarea,
+select {
+  caret-color: var(--color-brand);
+  accent-color: var(--color-brand);
+}
+
+html {
+  scrollbar-color: var(--color-walnut-frame) var(--color-walnut-deep);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -74,4 +150,10 @@ body {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* Outlined text: a thick stroke painted underneath keeps type readable over busy surfaces. */
+.text-outlined {
+  -webkit-text-stroke: var(--outline-w, 3px) var(--outline-c, transparent);
+  paint-order: stroke fill;
 }

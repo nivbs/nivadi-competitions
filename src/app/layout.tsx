@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
-import { IBM_Plex_Sans, IBM_Plex_Sans_Hebrew, IBM_Plex_Mono } from "next/font/google";
+import { Frank_Ruhl_Libre, IBM_Plex_Sans, IBM_Plex_Sans_Hebrew, IBM_Plex_Mono } from "next/font/google";
 
+import { FxProvider } from "@/components/motion/FxProvider";
 import { I18nProvider } from "@/lib/i18n/client";
 import { dirFor } from "@/lib/i18n/config";
 import { getDict } from "@/lib/i18n/server";
@@ -28,6 +29,13 @@ const plexMono = IBM_Plex_Mono({
   display: "swap",
 });
 
+const frankRuhl = Frank_Ruhl_Libre({
+  variable: "--font-display",
+  subsets: ["hebrew", "latin"],
+  weight: ["500", "700", "900"],
+  display: "swap",
+});
+
 // The locale comes from a cookie, so the root shell is rendered per request.
 export const instant = false;
 
@@ -39,7 +47,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#F6F0E8",
+  themeColor: "#2F1A0E",
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
@@ -48,10 +56,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html
       lang={locale}
       dir={dirFor(locale)}
-      className={`${plexSansLatin.variable} ${plexSansHebrew.variable} ${plexMono.variable} h-full`}
+      className={`${plexSansLatin.variable} ${plexSansHebrew.variable} ${plexMono.variable} ${frankRuhl.variable} h-full`}
     >
-      <body className="min-h-full bg-[var(--color-canvas)] font-sans text-[var(--color-ink)] antialiased">
-        <I18nProvider locale={locale}>{children}</I18nProvider>
+      <body className="min-h-full bg-[var(--color-walnut-deep)] font-sans text-[var(--color-ink)] antialiased">
+        <I18nProvider locale={locale}>
+          <FxProvider>{children}</FxProvider>
+        </I18nProvider>
       </body>
     </html>
   );
