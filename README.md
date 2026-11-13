@@ -41,7 +41,7 @@
 
    פתחו **http://localhost:3000** — תופנו לכניסה (`/sign-in?step=gate`, סיסמת אתר ברירת מחדל `GN110225`, ואז בחירת ניב/גלעד).
 
-6. **Vercel:** חברו את הריפו, הגדירו `DATABASE_URL` ו־`SESSION_SECRET` בדשבורד, והריצו `db:push` + `db:seed` מול מסד הייצור (או דרך SQL).
+6. **Vercel:** חברו את הריפו, הגדירו `DATABASE_URL` ו־`SESSION_SECRET` בדשבורד, והריצו `db:push` + `db:seed` מול מסד הייצור (או דרך SQL). הגדירו גם `CRON_SECRET` — קרון כל 10 דקות סוגר סשנים פתוחים ללא משחק חדש מעל 15 דקות (`vercel.json` → `/api/cron/close-idle-sessions`).
 
 ## סקריפטים
 
