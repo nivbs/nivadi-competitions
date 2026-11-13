@@ -78,40 +78,54 @@ export function VersusCard({ niv, gilad, labels }: { niv: PlayerTally; gilad: Pl
     <section
       data-analysis-hero
       dir="ltr"
-      className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--color-border-strong)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-soft)]"
+      className="stitched overflow-hidden rounded-[var(--radius-lg)] border border-[var(--color-border-strong)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-die)] max-sm:bg-[linear-gradient(165deg,var(--color-surface-raised)_0%,var(--color-surface)_38%,var(--color-surface)_100%)] max-sm:px-4 max-sm:py-6 sm:shadow-[var(--shadow-soft)]"
     >
-      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
-        <div className="text-start">
-          <p className={`font-display text-xl font-bold ${nivLeads ? "text-[var(--color-ink)]" : "text-[var(--color-ink-muted)]"}`}>{labels.niv}</p>
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 sm:gap-3">
+        <div className="text-center sm:text-start">
+          <p
+            className={`inline-flex items-center justify-center gap-1.5 font-display text-lg font-bold sm:text-xl sm:justify-start ${
+              nivLeads ? "text-[var(--color-ink)]" : "text-[var(--color-ink-muted)]"
+            }`}
+          >
+            <Checker player="niv" size={18} className="sm:hidden" aria-hidden />
+            {labels.niv}
+          </p>
           <p
             data-analysis-score
             data-player="niv"
             data-value={niv.points}
-            className="cursor-default font-mono text-5xl font-bold tabular-nums leading-none text-[var(--color-ink)] touch-manipulation"
+            className="cursor-default font-mono text-5xl font-bold tabular-nums leading-none text-[var(--color-ink)] touch-manipulation max-sm:text-[3.25rem]"
           >
             {niv.points}
           </p>
         </div>
         <div
           data-analysis-vs
-          className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-accent)] text-sm font-black tracking-wider text-[var(--color-ink)] shadow-[var(--shadow-checker)] ring-1 ring-[var(--color-accent-muted)]"
+          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent)] text-sm font-black tracking-wider text-[var(--color-ink)] shadow-[var(--shadow-checker)] ring-2 ring-[var(--color-gold)]/50 max-sm:h-[3.25rem] max-sm:w-[3.25rem] sm:h-12 sm:w-12 sm:ring-1 sm:ring-[var(--color-accent-muted)]"
         >
           {labels.vs}
         </div>
-        <div className="text-end">
-          <p className={`font-display text-xl font-bold ${giladLeads ? "text-[var(--color-ink)]" : "text-[var(--color-ink-muted)]"}`}>{labels.gilad}</p>
+        <div className="text-center sm:text-end">
+          <p
+            className={`inline-flex items-center justify-center gap-1.5 font-display text-lg font-bold sm:text-xl sm:justify-end ${
+              giladLeads ? "text-[var(--color-ink)]" : "text-[var(--color-ink-muted)]"
+            }`}
+          >
+            {labels.gilad}
+            <Checker player="gilad" size={18} className="sm:hidden" aria-hidden />
+          </p>
           <p
             data-analysis-score
             data-player="gilad"
             data-value={gilad.points}
-            className="cursor-default font-mono text-5xl font-bold tabular-nums leading-none text-[var(--color-ink)] touch-manipulation"
+            className="cursor-default font-mono text-5xl font-bold tabular-nums leading-none text-[var(--color-ink)] touch-manipulation max-sm:text-[3.25rem]"
           >
             {gilad.points}
           </p>
         </div>
       </div>
 
-      <div className="mt-3 grid grid-cols-2 gap-3">
+      <div className="mt-4 grid grid-cols-2 gap-3 max-sm:justify-items-center">
         <Stack player="niv" points={niv.points} />
         <Stack player="gilad" points={gilad.points} />
       </div>
@@ -120,7 +134,10 @@ export function VersusCard({ niv, gilad, labels }: { niv: PlayerTally; gilad: Pl
       <div className="mt-2">
         <SplitBar niv={niv.points} gilad={gilad.points} tall />
       </div>
-      <p data-analysis-summary className="mt-3 text-center text-sm font-semibold text-[var(--color-accent-muted)]">
+      <p
+        data-analysis-summary
+        className="mt-3 text-center text-sm font-semibold text-[var(--color-accent-muted)] max-sm:rounded-full max-sm:border max-sm:border-[var(--color-gold)]/35 max-sm:bg-[var(--color-surface)]/80 max-sm:px-3 max-sm:py-1.5 max-sm:text-[0.8125rem]"
+      >
         {labels.summary}
       </p>
 
